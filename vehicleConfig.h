@@ -38,6 +38,58 @@ enum ProtocolVersion {
 	V2
 };
 
+enum OutputType : uint8_t {
+	TYPE_LIGHT = 0,
+	TYPE_SERVO = 1
+};
+
+enum LightFunctions : uint32_t {
+	FUNC_NONE       = 0,
+	FUNC_PARK       = 1 << 0,
+	FUNC_DAYTIME    = 1 << 1,
+	FUNC_LOW_BEAM   = 1 << 2,
+	FUNC_HIGH_BEAM  = 1 << 3,
+	FUNC_FOG        = 1 << 4,
+	FUNC_LEFT_INDICATOR  = 1 << 5,
+	FUNC_RIGHT_INDICATOR = 1 << 6,
+	FUNC_HAZARD     = 1 << 7,
+	FUNC_REVERSE    = 1 << 8,
+	FUNC_BRAKE      = 1 << 9,
+	FUNC_BEACON     = 1 << 10,
+	FUNC_AUX        = 1 << 11,
+	FUNC_STARTER    = 1 << 12,
+};
+
+struct LightTypeConfig {
+	LightFunctions lightFunctions;
+	// Brightness Level when light is OFF
+	uint8_t brightnessLevelOff;
+	// Brightness Level when light is in a function state with low brightness (like parking light)
+	uint8_t brightnessLevelLow;
+	// Brightness Level when light is in a function state with medium brightness (like low beam)
+	uint8_t brightnessLevelMedium;
+	// Brightness Level when light is in a function state with high brightness (like high beam, brake light, Turn signal)
+	uint8_t brightnessLevelHigh;
+};
+
+struct ServoTypeConfig {
+	// Minimum Pulse Width for Servo
+	uint16_t minPulseWidth;
+	// Maximum Pulse Width for Servo
+	uint16_t maxPulseWidth;
+	// Neutral Pulse Width for Servo
+	uint16_t neutralPulseWidth;
+	// Sweep Time for Servo
+	uint16_t sweepTime;
+};
+
+struct OutputConfig {
+	OutputType outputType;
+	uint8_t outputPin;
+	LightTypeConfig lightTypeConfig;
+	ServoTypeConfig servoTypeConfig;
+};
+
 struct GeneralConfig {
 	// Setup Region EU or US for Truck - Use `CountryOption` enum
 	CountryOption countryOption;

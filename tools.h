@@ -17,7 +17,6 @@
 #define _TOOLS_H_
 //Definition
 #include "Arduino.h"
-#include <SoftPWM.h>							//https://github.com/bhagman/SoftPWM
 
 
 //Classes

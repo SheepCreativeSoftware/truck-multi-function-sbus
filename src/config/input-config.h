@@ -17,7 +17,12 @@ struct InputConfig {
   uint32_t targetMaskMid;        // Triggered if value >= thresholdLow AND <= thresholdHigh
   uint32_t targetMaskHigh;       // Triggered if value > thresholdHigh
   
-  // The limits defining the 3 switch zones (typically around 1300 and 1700 µs)
+  // The limits defining the 3 switch zones
+  // Units depend on input type:
+  // For PWM: Raw value ranges 700-2300 (values ideally at 1300-1700)
+  // For PPM: Raw value ranges 1000-2000 (values ideally at 1300-1700)
+  // For SBus: Raw SBus units ranges from 0-2047 (values ideally at 900-1100)
+
   uint16_t thresholdLow;
   uint16_t thresholdHigh;
 };

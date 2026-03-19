@@ -7,11 +7,13 @@ class EscParser {
 private:
     bool brakingActive;
     bool reverseActive;
+    uint8_t _brakePin;
+    uint8_t _reversePin;
 
     uint32_t activeEscMask;
 
 public:
-    EscParser();
+    EscParser(uint8_t brakePin, uint8_t reversePin);
     
     void begin();
     

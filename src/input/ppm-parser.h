@@ -25,7 +25,7 @@ public:
     // Neue Funktion zum Setzen oder Ändern des Modus zur Laufzeit
     void setMode(PpmInputMode newMode);
     
-    void update(bool isLinkActive);
+    void update(bool isLinkActive, uint16_t* servoStateArray);
     
     uint32_t getActiveMask();
     bool isPulsePresent();

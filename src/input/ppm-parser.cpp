@@ -53,7 +53,7 @@ void IRAM_ATTR PpmParser::handleInterrupt(void* arg) {
     }
 }
 
-void PpmParser::update(bool isLinkActive) {
+void PpmParser::update(bool isLinkActive, uint16_t* servoStateArray) {
     if (!isLinkActive) {
         activePpmMask = 0;
         return;
@@ -64,7 +64,11 @@ void PpmParser::update(bool isLinkActive) {
 
     for (uint8_t i = 0; i < channelsToProcess; i++) {
         InputConfig& cfg = activeMainConfig.ppmInputs[i];
-        uint16_t val = rawValues[i];
+        uint16_t val = getNormalizedValue(i);
+
+        if (cfg.type == InputType::NONE) {
+            continue;
+        }
 
         if (cfg.type == InputType::SWITCH_3POS) {
             if (val < cfg.thresholdLow) {
@@ -73,6 +77,11 @@ void PpmParser::update(bool isLinkActive) {
                 newMask |= cfg.targetMaskMid;
             } else {
                 newMask |= cfg.targetMaskHigh;
+            }
+        }
+        else if (cfg.type == InputType::PROPORTIONAL) {
+            if (cfg.targetServoIndex < 12) {
+                servoStateArray[cfg.targetServoIndex] = val;
             }
         }
     }

@@ -12,6 +12,7 @@ enum class InputType : uint8_t {
 struct InputConfig {
   InputType type;          
   
+  // --- Used for SWITCH_3POS ---
   // The targets (bits) to trigger based on the switch position
   uint32_t targetMaskLow;        // Triggered if value < thresholdLow
   uint32_t targetMaskMid;        // Triggered if value >= thresholdLow AND <= thresholdHigh
@@ -22,14 +23,10 @@ struct InputConfig {
   // For PWM: Raw value ranges 700-2300 (values ideally at 1300-1700)
   // For PPM: Raw value ranges 1000-2000 (values ideally at 1300-1700)
   // For SBus: Raw SBus units ranges from 0-2047 (values ideally at 900-1100)
-
   uint16_t thresholdLow;
   uint16_t thresholdHigh;
-};
 
-struct LightInputChannel {
-	// Pin for Reverse Signal from External Controller
-	uint8_t reverseSignal;
-	// Pin for Brake Signal from External Controller
-	uint8_t brakeSignal;
+  // --- Used for PROPORTIONAL ---
+    // Maps this input channel to an index in the global servo array (0 to 11)
+    uint8_t targetServoIndex;
 };

@@ -31,11 +31,12 @@ struct LocalOutputConfig {
   // Example for Beacon:
   // param1 = LED Index (e.g., 2nd LED in the circle)
   // param2 = Beacon Group ID (0 or 1, for independent beacons)
+  // param3 = Brightness
   //
   // Mode SERVO:
-  // - param1 = Minimum pulse width in microseconds (e.g., 1000)
-  // - param2 = Maximum pulse width in microseconds (e.g., 2000)
-  // - param3 = Center/Neutral pulse width in microseconds (e.g., 1500)
+  // - param1 = Servo position (0-11)
+  // - param2 = Minimum pulse width in microseconds (e.g., 1000)
+  // - param3 = Maximum pulse width in microseconds (e.g., 2000)
   uint16_t param1;       
   uint16_t param2;       
   uint16_t param3;       

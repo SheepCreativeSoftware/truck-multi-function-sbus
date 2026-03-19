@@ -22,10 +22,9 @@ struct MainConfig {
   
   PpmInputMode ppmMode;       // Toggle between 8-channel PPM or single-channel PWM
   InputConfig ppmInputs[NUM_PPM_CHANNELS]; // If SINGLE_PWM, only ppmInputs[0] is evaluated
-  LightInputChannel lightInputs;
   
   // --- Routing: Outputs (ESP32 Pins) ---
-  LocalOutputConfig localOuts[NUM_LOCAL_OUTPUTS];
+  LocalOutputConfig localOutputs[NUM_LOCAL_OUTPUTS];
   
   // --- System Safety: Failsafe ---
   // Timeout in milliseconds without a valid PPM/PWM pulse before failsafe triggers

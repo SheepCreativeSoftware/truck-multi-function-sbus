@@ -7,7 +7,7 @@ void SbusParser::begin() {
     receiver.begin();
 }
 
-void SbusParser::update(bool isLinkActive) {
+void SbusParser::update(bool isLinkActive, uint16_t* servoStateArray) {
     receiver.processIncoming();
 
     // The main loop has determined the link is dead. Force failsafe mask.
@@ -23,8 +23,12 @@ void SbusParser::update(bool isLinkActive) {
     for (uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
         InputConfig& cfg = activeMainConfig.sbusInputs[i];
 
+        if (cfg.type == InputType::NONE) {
+            continue;
+        }
+
+        uint16_t val = getChannelValue(i);
         if (cfg.type == InputType::SWITCH_3POS) {
-            uint16_t val = getChannelValue(i);
             
             if (val < cfg.thresholdLow) {
                 newMask |= cfg.targetMaskLow;
@@ -34,6 +38,11 @@ void SbusParser::update(bool isLinkActive) {
             } 
             else {
                 newMask |= cfg.targetMaskHigh;
+            }
+        }
+        else if (cfg.type == InputType::PROPORTIONAL) {
+            if (cfg.targetServoIndex < 12) {
+                servoStateArray[cfg.targetServoIndex] = val;
             }
         }
     }

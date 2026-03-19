@@ -24,11 +24,23 @@
 #include "src/input/sbus-parser.h"
 #include "src/input/ppm-parser.h"
 #include "src/input/esc-parser.h"
+#include "src/state-machine/global-effects.h"
+#include "src/output/local-outputs.h"
+#include "src/config-interface/json-interface.h"
 
 // Initialize the parser using hardware Serial1, RX on pin 16, TX disabled (-1)
 SbusParser sbusInput(&Serial1, D3, -1, false);
 PpmParser  ppmInput(D4);
-EscParser  escInput;
+EscParser  escInput(A2, A4);
+GlobalEffects globalEffects;
+LocalOutputController localOutputController;
+JsonInterface jsonUi;
+
+// In main.cpp
+// Index 0-5: Local Master Board Servos
+// Index 6-11: Remote RS485 Bus Servos
+// Initialized to 1000 (which represents the 1500µs center position on our 0-2000 scale)
+uint16_t globalServoState[12] = {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000};
 
 void setup() {
   Serial.begin(115200);
@@ -42,18 +54,29 @@ void setup() {
   sbusInput.begin();
   ppmInput.begin();
   escInput.begin();
-  
-  Serial.println("System Booted. Configurations loaded successfully.");
+
+  localOutputController.begin();
 }
 
-void loop() {
-  bool systemConnected = (sbusInput.isSerialConnected() && ppmInput.isPulsePresent());
 
-  sbusInput.update(systemConnected);
-  ppmInput.update(systemConnected);
+void loop() {
+  jsonUi.update(localOutputController);
+  bool systemConnected = true; //(sbusInput.isSerialConnected() && ppmInput.isPulsePresent());
+
+  sbusInput.update(systemConnected, globalServoState);
+  ppmInput.update(systemConnected, globalServoState);
   escInput.update();
 
   uint32_t globalState = sbusInput.getActiveMask() | 
                           ppmInput.getActiveMask() | 
                           escInput.getActiveMask();
+  
+
+  globalEffects.update(globalState);
+
+  uint16_t effectState = globalEffects.getActiveEffectMask();
+  uint8_t beacon1pos = globalEffects.getBeaconPosition(1);
+  uint8_t beacon2pos = globalEffects.getBeaconPosition(2);
+
+  localOutputController.update(globalState, effectState, beacon1pos, beacon2pos, globalServoState);
 }

@@ -39,6 +39,7 @@
 			"cppStandard": "c++11",
 			"defines": [
 				"IRAM_ATTR=",
+				"digitalPinToGPIONumber(p)",
 				"ESP32",
 				"ARDUINO=10819",
 				"ARDUINO_NANO_ESP32",

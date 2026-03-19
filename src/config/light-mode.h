@@ -32,7 +32,7 @@ enum LightBits : uint32_t {
   BIT_REVERSE_LIGHT = (1UL << 7),   // Value: 128
   
   // --- Special Functions ---
-  BIT_BEACON_LIGHT  = (1UL << 8),   // Value: 256  (Rotating beacon)
+  BIT_BEACON_LIGHT = (1UL << 8),   // Value: 256  (Rotating beacon)
   BIT_AUX_1         = (1UL << 9),   // Value: 512  (e.g., Work light)
   BIT_AUX_2         = (1UL << 10),  // Value: 1024 (e.g., Fog light)
   BIT_AUX_3         = (1UL << 11),  // Value: 2048 (e.g., Additional light)
@@ -43,6 +43,14 @@ enum LightBits : uint32_t {
   BIT_STATIC_ON     = (1UL << 14),   // Value: 16384 (Virtual bit for always-on/marker lights)
   BIT_STROBE_LIGHT  = (1UL << 15),  // Value: 32768 (Warning strobes)
   BIT_FLASH_TO_PASS = (1UL << 16)   // Value: 65536 (Lichthupe / Optical horn sequence)
-  
   // Available: Bits 17 to 31 (Over 2 billion possible combinations!)
+};
+
+enum CombinedLightStates: uint32_t {
+  COMB_PARK_AND_FULL_BEAM = (BIT_PARKING_LIGHT | BIT_LOW_BEAM | BIT_HIGH_BEAM),
+  COMB_PARK_AND_LOW_BEAM = (BIT_PARKING_LIGHT | BIT_LOW_BEAM),
+  COMB_LOW_AND_HIGH_BEAM = (BIT_LOW_BEAM | BIT_HIGH_BEAM),
+  COMB_PARK_AND_BRAKE = (BIT_PARKING_LIGHT | BIT_BRAKE_LIGHT),
+  COMB_US_TAIL_L = (BIT_PARKING_LIGHT | BIT_LOW_BEAM | BIT_BRAKE_LIGHT | BIT_HAZARD_LIGHT | BIT_TURN_SIGNAL_L),
+  COMB_US_TAIL_R = (BIT_PARKING_LIGHT | BIT_LOW_BEAM | BIT_BRAKE_LIGHT | BIT_HAZARD_LIGHT | BIT_TURN_SIGNAL_R),
 };

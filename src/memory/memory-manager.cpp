@@ -35,8 +35,10 @@ void MemoryManager::loadConfig() {
     activeEffectsConfig.strobeShortPause = 60;
     activeEffectsConfig.strobeLongPause = 400;
     activeEffectsConfig.flashToPassFreq = 100;
-    activeEffectsConfig.beaconSpeed = 120;
-    activeEffectsConfig.beaconMaxLeds = 4;
+    activeEffectsConfig.beacon1Speed = 2000;
+    activeEffectsConfig.beacon1MaxLeds = 4;
+    activeEffectsConfig.beacon2Speed = 2000;
+    activeEffectsConfig.beacon2MaxLeds = 4;
     activeEffectsConfig.starterDimFactor = 50;
   }
 }

@@ -12,20 +12,14 @@
  * You should have received a copy of the GNU General Public License along with this program. 
  * If not, see <https://www.gnu.org/licenses/>.
  ************************************/
- 
-#ifndef _PPM_TO_SWITCHES_h_
-#define _PPM_TO_SWITCHES_h_
-//Definition
+
+#pragma once
 #include "Arduino.h"
 
-#define DIRECTION_UP 1
-#define DIRECTION_MID 2
-#define DIRECTION_DOWN 3
-#define PPM_INVERT 1
-
-//Functions
-uint8_t ppmToSwitchStages(uint16_t signal, bool invertDirection = 0);	// Function to evaluate the ppm signal of a switch
-uint8_t ppm2ToSwitch3Stages(uint16_t signal1, uint16_t signal2);		// Function to evaluate the ppm signal of a 3 stages switch with two signals
-uint32_t ppmServoToRange(uint32_t signal, uint32_t inMin = 1020, uint32_t inMax = 2020, uint32_t outMin = 0, uint32_t outMax = 1023); // Function to evaluate the ppm signal from a servo
-
-#endif
+class Blink {
+	private:
+		uint32_t blinkOnTime = 0;
+	public:
+		uint8_t blink(uint16_t blinkTimeMillis);
+		void resetBlink(); // Reset Blink after usage for next usage
+};

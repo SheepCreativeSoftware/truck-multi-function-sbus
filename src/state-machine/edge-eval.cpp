@@ -13,33 +13,15 @@
  * If not, see <https://www.gnu.org/licenses/>.
  ************************************/
 
-#ifndef _TOOLS_H_
-#define _TOOLS_H_
-//Definition
-#include "Arduino.h"
+#include "edge-eval.h"
 
-
-//Classes
-class EdgeEvaluation {
-		bool lastEdge;
-    public:
-		bool readEdge(bool input);
-};
-
-class Filter {
-		int16_t lastValue;
-		bool doneFilter;
-    public:
-		void init(int16_t initialValue);
-		int16_t filterValue(int16_t input, int16_t filterFactor = 20, uint16_t filterTime = 100);
-};
-
-class Blink {
-	private:
-		uint32_t blinkOnTime = 0;
-	public:
-		uint8_t blink(uint16_t blinkTimeMillis);
-		void resetBlink(); // Reset Blink after usage for next usage
-};
-
-#endif
+bool EdgeEvaluation::readEdge(bool input){
+	if((input) && (!lastEdge)){
+		lastEdge = true;
+		return true;
+	} else if((!input) && (lastEdge)){
+		lastEdge = false;
+		return false;
+	} 
+	return false;
+}

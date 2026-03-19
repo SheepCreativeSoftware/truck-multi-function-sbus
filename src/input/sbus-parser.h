@@ -17,7 +17,7 @@ public:
     void begin();
     
     // The main loop passes the combined connection status into the update function
-    void update(bool isLinkActive);
+    void update(bool isLinkActive, uint16_t* servoStateArray);
     
     uint32_t getActiveMask();
     

@@ -13,34 +13,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  ************************************/
 
-#include "tools.h"
-
-bool EdgeEvaluation::readEdge(bool input){
-	if((input) && (!lastEdge)){
-		lastEdge = true;
-		return true;
-	} else if((!input) && (lastEdge)){
-		lastEdge = false;
-		return false;
-	} 
-	return false;
-}
-
-void Filter::init(int16_t initialValue) {
-	lastValue = initialValue;
-	doneFilter = false;
-}
-
-int16_t Filter::filterValue(int16_t input, int16_t filterFactor, uint16_t filterTime){
-	if((millis()%filterTime >= filterTime/2) && (doneFilter == false)) {
-		lastValue = (input - lastValue) / filterFactor + lastValue; 
-		doneFilter = true;
-	} else if((millis()%filterTime < filterTime/2) && (doneFilter == true)) {
-		doneFilter = false;
-	}
-	
-	return lastValue;
-}
+#include "blink.h"
 
 uint8_t Blink::blink(uint16_t blinkTimeMillis) {
 	if((blinkOnTime == 0) || (blinkOnTime > millis())){ 	//Reset blinkOnTime on startup and on overflow.

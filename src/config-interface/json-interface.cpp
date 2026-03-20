@@ -1,6 +1,6 @@
 #include "json-interface.h"
 
-void JsonInterface::update(LocalOutputController& outputController) {
+void JsonInterface::update(LocalOutputController& outputController, MemoryManager& memoryManager) {
     if (Serial.available() == 0) return; 
 
     // 1024 bytes is enough for a chunky update block
@@ -13,8 +13,6 @@ void JsonInterface::update(LocalOutputController& outputController) {
         while(Serial.available()) Serial.read(); // Clear buffer
         return;
     }
-
-    bool configChanged = false;
 
     // --- 1. OUTPUTS ---
     if (doc["outputs"].is<JsonArray>()) {
@@ -36,7 +34,6 @@ void JsonInterface::update(LocalOutputController& outputController) {
         }
         Serial.println("Outputs updated!");
         outputController.begin(); // Re-init hardware pins
-        configChanged = true;
     }
 
     // --- 2. SBUS INPUTS ---
@@ -55,7 +52,6 @@ void JsonInterface::update(LocalOutputController& outputController) {
             }
         }
         Serial.println("SBUS Inputs updated!");
-        configChanged = true;
     }
 
     // --- 3. GLOBAL EFFECTS ---
@@ -70,9 +66,22 @@ void JsonInterface::update(LocalOutputController& outputController) {
         activeEffectsConfig.strobeLongPause = effConfig["strLong"] | activeEffectsConfig.strobeLongPause;
         
         Serial.println("Effects updated!");
-        configChanged = true;
     }
 
     // Optional: Trigger a save to NVS here if configChanged is true
-    // if (configChanged) { saveConfigToNVS(); }
+    if (doc["save"].is<JsonString>()) {
+        JsonString save = doc["save"];
+        if(save == "true") {
+            memoryManager.saveConfig();
+            Serial.println("Config Saved!");
+        }
+    }
+
+    if (doc["factory"].is<JsonString>()) {
+        JsonString factory = doc["factory"];
+        if(factory == "true") {
+            memoryManager.factoryReset();
+            Serial.println("Factory Reset!");
+        }
+    }
 }

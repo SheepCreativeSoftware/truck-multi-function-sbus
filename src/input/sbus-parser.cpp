@@ -84,6 +84,6 @@ uint16_t SbusParser::getChannelValue(uint8_t index) {
         case 13: return channelData.channel14;
         case 14: return channelData.channel15;
         case 15: return channelData.channel16;
-        default: return 1500; 
+        default: return 1024; 
     }
 }

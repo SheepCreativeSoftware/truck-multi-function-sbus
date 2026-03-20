@@ -41,14 +41,15 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         JsonArray sbusInputs = doc["sbus"].as<JsonArray>();
         for (JsonObject inConfig : sbusInputs) {
             uint8_t ch = inConfig["ch"];
-            if (ch < 16) {
-                activeMainConfig.sbusInputs[ch].type = static_cast<InputType>(inConfig["type"].as<uint8_t>());
-                activeMainConfig.sbusInputs[ch].targetMaskLow = inConfig["maskL"].as<uint32_t>();
-                activeMainConfig.sbusInputs[ch].targetMaskMid = inConfig["maskM"].as<uint32_t>();
-                activeMainConfig.sbusInputs[ch].targetMaskHigh = inConfig["maskH"].as<uint32_t>();
-                activeMainConfig.sbusInputs[ch].thresholdLow = inConfig["thL"].as<uint16_t>();
-                activeMainConfig.sbusInputs[ch].thresholdHigh = inConfig["thH"].as<uint16_t>();
-                activeMainConfig.sbusInputs[ch].targetServoIndex = inConfig["srv"].as<uint8_t>();
+            uint8_t channel = ch - 1;
+            if (channel > 0 && channel < 16) {
+                activeMainConfig.sbusInputs[channel].type = static_cast<InputType>(inConfig["type"].as<uint8_t>());
+                activeMainConfig.sbusInputs[channel].targetMaskLow = inConfig["maskL"].as<uint32_t>();
+                activeMainConfig.sbusInputs[channel].targetMaskMid = inConfig["maskM"].as<uint32_t>();
+                activeMainConfig.sbusInputs[channel].targetMaskHigh = inConfig["maskH"].as<uint32_t>();
+                activeMainConfig.sbusInputs[channel].thresholdLow = inConfig["thL"].as<uint16_t>();
+                activeMainConfig.sbusInputs[channel].thresholdHigh = inConfig["thH"].as<uint16_t>();
+                activeMainConfig.sbusInputs[channel].targetServoIndex = inConfig["srv"].as<uint8_t>();
             }
         }
         Serial.println("SBUS Inputs updated!");

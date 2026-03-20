@@ -4,7 +4,7 @@ void JsonInterface::update(LocalOutputController& outputController) {
     if (Serial.available() == 0) return; 
 
     // 1024 bytes is enough for a chunky update block
-    StaticJsonDocument<1024> doc;
+    JsonDocument doc;
     DeserializationError error = deserializeJson(doc, Serial);
 
     if (error) {
@@ -17,7 +17,7 @@ void JsonInterface::update(LocalOutputController& outputController) {
     bool configChanged = false;
 
     // --- 1. OUTPUTS ---
-    if (doc.containsKey("outputs")) {
+    if (doc["outputs"].is<JsonArray>()) {
         JsonArray outputs = doc["outputs"].as<JsonArray>();
         for (JsonObject outConfig : outputs) {
             uint8_t targetPin = outConfig["pin"];
@@ -40,7 +40,7 @@ void JsonInterface::update(LocalOutputController& outputController) {
     }
 
     // --- 2. SBUS INPUTS ---
-    if (doc.containsKey("sbus")) {
+    if (doc["sbus"].is<JsonArray>()) {
         JsonArray sbusInputs = doc["sbus"].as<JsonArray>();
         for (JsonObject inConfig : sbusInputs) {
             uint8_t ch = inConfig["ch"];
@@ -59,7 +59,7 @@ void JsonInterface::update(LocalOutputController& outputController) {
     }
 
     // --- 3. GLOBAL EFFECTS ---
-    if (doc.containsKey("effects")) {
+    if (doc["effects"].is<JsonObject>()) {
         JsonObject effConfig = doc["effects"];
         
         // Using | default_value to only update keys that are present in the JSON

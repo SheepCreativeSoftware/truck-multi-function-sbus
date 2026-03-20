@@ -18,19 +18,18 @@ void LocalOutputController::begin() {
     for (int i = 0; i < NUM_LOCAL_OUTPUTS; i++) {
         LocalOutputConfig& cfg = activeMainConfig.localOutputs[i];
 
+        resetOutput(cfg.pin, i);
+
         switch (cfg.mode) {
             case OutputMode::NONE: 
-                resetOutput(cfg.pin, i);
                 pinMode(cfg.pin, INPUT);
                 break;
             case OutputMode::DIGITAL:
-                resetOutput(cfg.pin, i);
                 pinMode(cfg.pin, OUTPUT);
                 digitalWrite(cfg.pin, LOW); // Safe default state
                 break;
 
             case OutputMode::PWM:
-                resetOutput(cfg.pin, i);
                 // 12-bit gives us 4096 steps of brightness for ultra-smooth fading
                 // Core 2.x requires a channel (0-15). We use 'i' as the channel.
                 // 1000 Hz is perfect for LEDs (no visible flicker, no camera banding)
@@ -43,7 +42,6 @@ void LocalOutputController::begin() {
                 ledcWrite(i, 0);
                 break;
             case OutputMode::SERVO:
-                resetOutput(cfg.pin, i);
                 // param2 = min pulse (e.g., 1000us)
                 // param3 = max pulse (e.g., 2000us)
                 servos[i].setPeriodHertz(50); // Standard RC servo frequency

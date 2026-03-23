@@ -1,9 +1,0 @@
-{
-	"effects": {
-		"turnFreq": 1000,
-		"stDim": 50,
-		"strFlash": 40,
-		"strShort": 80,
-		"strLong": 400
-	}
-}

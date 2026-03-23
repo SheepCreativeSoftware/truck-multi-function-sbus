@@ -42,7 +42,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         for (JsonObject inConfig : sbusInputs) {
             uint8_t ch = inConfig["ch"];
             uint8_t channel = ch - 1;
-            if (channel > 0 && channel < 16) {
+            if (channel < 16) {
                 activeMainConfig.sbusInputs[channel].type = static_cast<InputType>(inConfig["type"].as<uint8_t>());
                 activeMainConfig.sbusInputs[channel].targetMaskLow = inConfig["maskL"].as<uint32_t>();
                 activeMainConfig.sbusInputs[channel].targetMaskMid = inConfig["maskM"].as<uint32_t>();
@@ -55,6 +55,25 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         Serial.println("SBUS Inputs updated!");
     }
 
+    // --- 2.1. PPM INPUTS ---
+    if (doc["ppmIn"].is<JsonArray>()) {
+        JsonArray ppmInputs = doc["ppmIn"].as<JsonArray>();
+        for (JsonObject inConfig : ppmInputs) {
+            uint8_t ch = inConfig["ch"];
+            uint8_t channel = ch - 1;
+            if (channel < 8) {
+                activeMainConfig.ppmInputs[channel].type = static_cast<InputType>(inConfig["type"].as<uint8_t>());
+                activeMainConfig.ppmInputs[channel].targetMaskLow = inConfig["maskL"].as<uint32_t>();
+                activeMainConfig.ppmInputs[channel].targetMaskMid = inConfig["maskM"].as<uint32_t>();
+                activeMainConfig.ppmInputs[channel].targetMaskHigh = inConfig["maskH"].as<uint32_t>();
+                activeMainConfig.ppmInputs[channel].thresholdLow = inConfig["thL"].as<uint16_t>();
+                activeMainConfig.ppmInputs[channel].thresholdHigh = inConfig["thH"].as<uint16_t>();
+                activeMainConfig.ppmInputs[channel].targetServoIndex = inConfig["srv"].as<uint8_t>();
+            }
+        }
+        Serial.println("PPM Inputs updated!");
+    }
+
     // --- 3. GLOBAL EFFECTS ---
     if (doc["effects"].is<JsonObject>()) {
         JsonObject effConfig = doc["effects"];
@@ -65,6 +84,11 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         activeEffectsConfig.strobeFlashDuration = effConfig["strFlash"] | activeEffectsConfig.strobeFlashDuration;
         activeEffectsConfig.strobeShortPause = effConfig["strShort"] | activeEffectsConfig.strobeShortPause;
         activeEffectsConfig.strobeLongPause = effConfig["strLong"] | activeEffectsConfig.strobeLongPause;
+        activeEffectsConfig.beacon1Speed = effConfig["bcn1Spd"] | activeEffectsConfig.beacon1Speed;
+        activeEffectsConfig.beacon2Speed = effConfig["bcn2Spd"] | activeEffectsConfig.beacon2Speed;
+        activeEffectsConfig.beacon1MaxLeds = effConfig["bcn1Max"] | activeEffectsConfig.beacon1MaxLeds;
+        activeEffectsConfig.beacon2MaxLeds = effConfig["bcn2Max"] | activeEffectsConfig.beacon2MaxLeds;
+        activeEffectsConfig.flashToPassFreq = effConfig["ftpFreq"] | activeEffectsConfig.flashToPassFreq;
         
         Serial.println("Effects updated!");
     }

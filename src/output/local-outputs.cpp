@@ -97,12 +97,13 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     // Create a clean evaluation state that ignores the starter dim bit completely.
     // This prevents the bit from accidentally triggering the fallback or early exit logic.
     uint32_t evalState = inputState & ~BIT_STARTER_DIM;
+    uint32_t triggerMask = cfg.triggerMask & ~BIT_STARTER_DIM; // Also ignore the starter dim bit in the trigger mask for matching logic
     
-    if (cfg.triggerMask & BIT_STATIC_OFF) return 0;
-    if (cfg.triggerMask & BIT_STATIC_ON) return cfg.param1;
+    if (triggerMask & BIT_STATIC_OFF) return 0;
+    if (triggerMask & BIT_STATIC_ON) return cfg.param1;
 
     // --- COMBO: US-Style Tail Light LEFT ---
-    if (cfg.triggerMask == COMB_US_TAIL_L) {
+    if (triggerMask == COMB_US_TAIL_L) {
         // 1. Regular turn signal has highest priority (overrides brake on this side)
         if (evalState & BIT_TURN_SIGNAL_L) {
             return (effectState & BIT_GLOBAL_TURN_L) ? cfg.param2 : 0;
@@ -126,7 +127,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     }
 
     // --- COMBO: US-Style Tail Light RIGHT ---
-    if (cfg.triggerMask == COMB_US_TAIL_R) {
+    if (triggerMask == COMB_US_TAIL_R) {
         // Same logic, just for the right side
         if (evalState & BIT_TURN_SIGNAL_R) {
             return (effectState & BIT_GLOBAL_TURN_R) ? cfg.param2 : 0;
@@ -140,7 +141,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     }
 
     // --- EFFECTS: Hazard Lights ---
-    if (cfg.triggerMask & BIT_HAZARD_LIGHT) {
+    if (triggerMask & BIT_HAZARD_LIGHT) {
         if ((evalState & BIT_HAZARD_LIGHT) || ((effectState & BIT_GLOBAL_TURN_L) && (effectState & BIT_GLOBAL_TURN_R))) {
             if((effectState & BIT_GLOBAL_TURN_L) && (effectState & BIT_GLOBAL_TURN_R)) {
                 return cfg.param1;
@@ -151,7 +152,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     }
 
     // --- EFFECTS: Turn Signal Left ---
-    if (cfg.triggerMask & BIT_TURN_SIGNAL_L) {
+    if (triggerMask & BIT_TURN_SIGNAL_L) {
         if ((evalState & BIT_TURN_SIGNAL_L) || (effectState & BIT_GLOBAL_TURN_L)) {
             if(effectState & BIT_GLOBAL_TURN_L) {
                 return cfg.param1;
@@ -162,7 +163,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     }
 
     // --- EFFECTS: Turn Signal Right ---
-    if (cfg.triggerMask & BIT_TURN_SIGNAL_R) {
+    if (triggerMask & BIT_TURN_SIGNAL_R) {
         if ((evalState & BIT_TURN_SIGNAL_R) || (effectState & BIT_GLOBAL_TURN_R)) {
             if(effectState & BIT_GLOBAL_TURN_R) {
                 return cfg.param1;
@@ -174,38 +175,38 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
 
     // ====================================================================
     // EARLY EXIT: If the state doesn't match the trigger mask AT ALL, target is 0
-    if ((evalState & cfg.triggerMask) == 0) {
+    if ((evalState & triggerMask) == 0) {
         return 0;
     }
     // ====================================================================
 
     // --- COMBO 1: Park & Brake Light ---
-    if (cfg.triggerMask == COMB_PARK_AND_BRAKE) {
+    if (triggerMask == COMB_PARK_AND_BRAKE) {
         if (evalState & BIT_BRAKE_LIGHT) return cfg.param2; 
         if (evalState & BIT_PARKING_LIGHT)  return cfg.param1; 
     }
 
     // --- COMBO 2: Headlights (Parking / Low / High) ---
-    if (cfg.triggerMask == COMB_PARK_AND_FULL_BEAM) {
+    if (triggerMask == COMB_PARK_AND_FULL_BEAM) {
         if (evalState & BIT_HIGH_BEAM) return cfg.param3; 
         if (evalState & BIT_LOW_BEAM)  return cfg.param2; 
         if (evalState & BIT_PARKING_LIGHT) return cfg.param1; 
     }
 
     // --- COMBO 3: Headlights (Parking / Low) ---
-    if (cfg.triggerMask == COMB_PARK_AND_LOW_BEAM) {
+    if (triggerMask == COMB_PARK_AND_LOW_BEAM) {
         if (evalState & BIT_LOW_BEAM)  return cfg.param2; 
         if (evalState & BIT_PARKING_LIGHT) return cfg.param1; 
     }
 
     // --- COMBO 4: Headlights (Low / High) ---
-    if (cfg.triggerMask == COMB_LOW_AND_HIGH_BEAM) {
+    if (triggerMask == COMB_LOW_AND_HIGH_BEAM) {
         if (evalState & BIT_HIGH_BEAM)  return cfg.param2; 
         if (evalState & BIT_LOW_BEAM) return cfg.param1; 
     }
 
     // --- EFFECTS: Strobe Light ---
-    if (cfg.triggerMask & BIT_STROBE_LIGHT) {
+    if (triggerMask & BIT_STROBE_LIGHT) {
         if (evalState & BIT_STROBE_LIGHT) {
             if (effectState & BIT_GLOBAL_STROBE) {
                 return cfg.param1;
@@ -216,7 +217,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
     }
 
     // --- EFFECTS: Beacon Light ---
-    if ((cfg.triggerMask & BIT_BEACON_LIGHT) && (evalState & BIT_BEACON_LIGHT)) {
+    if ((triggerMask & BIT_BEACON_LIGHT) && (evalState & BIT_BEACON_LIGHT)) {
         if (cfg.param2 == 0 && cfg.param1 == beacon1Pos) {
             return cfg.param3;
         } else if (cfg.param2 == 1 && cfg.param1 == beacon2Pos) {

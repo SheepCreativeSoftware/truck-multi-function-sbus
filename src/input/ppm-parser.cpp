@@ -5,7 +5,7 @@ const uint16_t SYNC_PULSE_MAX = 980;
 
 // Standardmäßig starten wir mit einem sicheren Modus
 PpmParser::PpmParser(uint8_t pin) 
-    : inputPin(pin), mode(PpmInputMode::SINGLE_PWM), lastRiseTime(0), currentChannelCount(0), activePpmMask(0) {
+    : inputPin(pin), mode(PpmInputMode::MULTIPLEXED_8CH), lastRiseTime(0), currentChannelCount(0), activePpmMask(0) {
     for(int i=0; i < NUM_PPM_CHANNELS; i++) rawValues[i] = 1500;
 }
 

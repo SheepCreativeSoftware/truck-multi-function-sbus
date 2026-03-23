@@ -61,7 +61,7 @@ void setup() {
 
 void loop() {
   jsonUi.update(localOutputController, memoryManager);
-  bool systemConnected = true; //(sbusInput.isSerialConnected() && ppmInput.isPulsePresent());
+  bool systemConnected = (sbusInput.isSerialConnected() && !sbusInput.isFailsafeActive() && ppmInput.isPulsePresent());
 
   sbusInput.update(systemConnected, globalServoState);
   ppmInput.update(systemConnected, globalServoState);

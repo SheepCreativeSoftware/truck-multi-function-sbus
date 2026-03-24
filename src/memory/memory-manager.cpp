@@ -20,7 +20,7 @@ void MemoryManager::loadConfig() {
     // Initialize critical defaults here to prevent undefined behavior.
     activeMainConfig.nodeId = 0; // 0 = Master Controller
     activeMainConfig.ppmMode = PpmInputMode::MULTIPLEXED_8CH;
-    activeMainConfig.failsafeTimeoutMs = 500;
+    activeMainConfig.failsafeTimeoutMs = 2000;
     activeMainConfig.failsafeMask = BIT_HAZARD_LIGHT; // Or e.g., BIT_HAZARD_LIGHT
   }
 

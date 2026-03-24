@@ -6,7 +6,25 @@
 enum class InputType : uint8_t {
   NONE = 0,             // Channel is disabled / ignored
   SWITCH_3POS = 1,      // Evaluates Low, Mid, and High positions
-  PROPORTIONAL = 2      // Raw value passed through (e.g., for servos/ESC)
+};
+
+enum InputServoMapping : uint8_t {
+    NONE = 0,
+    // Local Master Board Servos
+    SRV_MASTER_1 = 1,
+    SRV_MASTER_2 = 2,
+    SRV_MASTER_3 = 3,
+    SRV_MASTER_4 = 4,
+    SRV_MASTER_5 = 5,
+    SRV_MASTER_6 = 6,
+
+    // Remote RS485 Bus Servos
+    SRV_REMOTE_1 = 7,
+    SRV_REMOTE_2 = 8,
+    SRV_REMOTE_3 = 9,
+    SRV_REMOTE_4 = 10,
+    SRV_REMOTE_5 = 11,
+    SRV_REMOTE_6 = 12
 };
 
 struct InputConfig {
@@ -27,6 +45,6 @@ struct InputConfig {
   uint16_t thresholdHigh;
 
   // --- Used for PROPORTIONAL ---
-    // Maps this input channel to an index in the global servo array (0 to 11)
-    uint8_t targetServoIndex;
+  // Maps this input channel to an index in the global servo array (0 to 12); while 0 means off
+  InputServoMapping targetServoIndex;
 };

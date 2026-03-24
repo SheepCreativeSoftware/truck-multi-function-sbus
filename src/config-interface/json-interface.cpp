@@ -49,7 +49,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
                 activeMainConfig.sbusInputs[channel].targetMaskHigh = inConfig["maskH"].as<uint32_t>();
                 activeMainConfig.sbusInputs[channel].thresholdLow = inConfig["thL"].as<uint16_t>();
                 activeMainConfig.sbusInputs[channel].thresholdHigh = inConfig["thH"].as<uint16_t>();
-                activeMainConfig.sbusInputs[channel].targetServoIndex = inConfig["srv"].as<uint8_t>();
+                activeMainConfig.sbusInputs[channel].targetServoIndex = inConfig["srv"].as<InputServoMapping>();
             }
         }
         Serial.println("SBUS Inputs updated!");
@@ -68,7 +68,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
                 activeMainConfig.ppmInputs[channel].targetMaskHigh = inConfig["maskH"].as<uint32_t>();
                 activeMainConfig.ppmInputs[channel].thresholdLow = inConfig["thL"].as<uint16_t>();
                 activeMainConfig.ppmInputs[channel].thresholdHigh = inConfig["thH"].as<uint16_t>();
-                activeMainConfig.ppmInputs[channel].targetServoIndex = inConfig["srv"].as<uint8_t>();
+                activeMainConfig.ppmInputs[channel].targetServoIndex = inConfig["srv"].as<InputServoMapping>();
             }
         }
         Serial.println("PPM Inputs updated!");

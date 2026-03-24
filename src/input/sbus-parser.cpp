@@ -22,12 +22,16 @@ void SbusParser::update(bool isLinkActive, uint16_t* servoStateArray) {
 
     for (uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
         InputConfig& cfg = activeMainConfig.sbusInputs[i];
+        uint16_t val = getChannelValue(i);
+
+        if (cfg.targetServoIndex != InputServoMapping::NONE && cfg.targetServoIndex <= InputServoMapping::SRV_REMOTE_6) {
+            servoStateArray[cfg.targetServoIndex - 1] = val;
+        }
 
         if (cfg.type == InputType::NONE) {
             continue;
         }
 
-        uint16_t val = getChannelValue(i);
         if (cfg.type == InputType::SWITCH_3POS) {
             
             if (val < cfg.thresholdLow) {
@@ -38,11 +42,6 @@ void SbusParser::update(bool isLinkActive, uint16_t* servoStateArray) {
             } 
             else {
                 newMask |= cfg.targetMaskHigh;
-            }
-        }
-        else if (cfg.type == InputType::PROPORTIONAL) {
-            if (cfg.targetServoIndex < 12) {
-                servoStateArray[cfg.targetServoIndex] = val;
             }
         }
     }

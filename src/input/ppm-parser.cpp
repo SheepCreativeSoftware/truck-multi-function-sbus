@@ -66,6 +66,10 @@ void PpmParser::update(bool isLinkActive, uint16_t* servoStateArray) {
         InputConfig& cfg = activeMainConfig.ppmInputs[i];
         uint16_t val = getNormalizedValue(i);
 
+        if (cfg.targetServoIndex != InputServoMapping::NONE && cfg.targetServoIndex <= InputServoMapping::SRV_REMOTE_6) {
+            servoStateArray[cfg.targetServoIndex - 1] = val;
+        }
+
         if (cfg.type == InputType::NONE) {
             continue;
         }
@@ -79,17 +83,12 @@ void PpmParser::update(bool isLinkActive, uint16_t* servoStateArray) {
                 newMask |= cfg.targetMaskHigh;
             }
         }
-        else if (cfg.type == InputType::PROPORTIONAL) {
-            if (cfg.targetServoIndex < 12) {
-                servoStateArray[cfg.targetServoIndex] = val;
-            }
-        }
     }
     activePpmMask = newMask;
 }
 
 bool PpmParser::isPulsePresent() {
-    return (millis() - lastValidPulseTime < 250);
+    return (millis() - lastValidPulseTime < activeMainConfig.failsafeTimeoutMs);
 }
 
 uint32_t PpmParser::getActiveMask() { return activePpmMask; }

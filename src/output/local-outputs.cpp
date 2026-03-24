@@ -3,7 +3,6 @@
 LocalOutputController::LocalOutputController() {}
 
 void LocalOutputController::resetOutput(uint8_t pin, uint8_t channel) {
-    //uint8_t GPIOpin = digitalPinToGPIONumber(pin);
     ledPWM[channel].detachPin(pin);
     servos[channel].detach();
 };
@@ -86,7 +85,6 @@ void LocalOutputController::begin() {
                     // 12-bit gives us 4096 steps of brightness for ultra-smooth fading
                     // Core 2.x requires a channel (0-15). We use 'i' as the channel.
                     // 1000 Hz is perfect for LEDs (no visible flicker, no camera banding)
-                    int8_t GPIOpin = digitalPinToGPIONumber(cfg.pin);
                     ledPWM[i].attachPin(cfg.pin, 1000, 12);
                     // Turn it off by writing to the CHANNEL, not the pin
                     ledPWM[i].write(0);

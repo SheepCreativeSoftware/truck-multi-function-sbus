@@ -301,6 +301,40 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
         }
     }
 
+    if (triggerMask & BIT_HIGH_BEAM) {
+        if (evalState & BIT_FLASH_TO_PASS) {
+            if (effectState & BIT_GLOBAL_FLASH_TO_PASS) {
+                return cfg.param1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    if (triggerMask & BIT_FOG_L) {
+        if (evalState & BIT_FOG) {
+            return cfg.param1;
+        }
+
+        if (effectState & BIT_GLOBAL_CORNERING_L) {
+            return cfg.param1;
+        } else {
+            return 0;
+        }
+    }
+
+    if (triggerMask & BIT_FOG_R) {
+        if (evalState & BIT_FOG) {
+            return cfg.param1;
+        }
+
+        if (effectState & BIT_GLOBAL_CORNERING_R) {
+            return cfg.param1;
+        } else {
+            return 0;
+        }
+    }
+
     // --- EFFECTS: Beacon Light ---
     if ((triggerMask & BIT_BEACON_LIGHT) && (evalState & BIT_BEACON_LIGHT)) {
         if (cfg.param2 == 0 && cfg.param1 == beacon1Pos) {

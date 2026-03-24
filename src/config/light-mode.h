@@ -33,17 +33,22 @@ enum LightBits : uint32_t {
   
   // --- Special Functions ---
   BIT_BEACON_LIGHT = (1UL << 8),   // Value: 256  (Rotating beacon)
-  BIT_AUX_1         = (1UL << 9),   // Value: 512  (e.g., Work light)
-  BIT_AUX_2         = (1UL << 10),  // Value: 1024 (e.g., Fog light)
-  BIT_AUX_3         = (1UL << 11),  // Value: 2048 (e.g., Additional light)
+  BIT_FOG_L         = (1UL << 9),   // Value: 512  (e.g., Fog light left)
+  BIT_FOG_R         = (1UL << 10),  // Value: 1024 (e.g., Fog light right)
+  BIT_FOG           = (1UL << 11),  // Value: 2048 (e.g., Fog light both sides)
   BIT_STARTER_DIM   = (1UL << 12),  // Value: 4096 (Starter dims lights)
   
   // --- System & Control Bits ---
   BIT_SHOWMODE      = (1UL << 13),  // Value: 8192 (Triggers show/sequence mode on slaves)
-  BIT_STATIC_ON     = (1UL << 14),   // Value: 16384 (Virtual bit for always-on/marker lights)
+  BIT_STATIC_ON     = (1UL << 14),  // Value: 16384 (Virtual bit for always-on/marker lights)
   BIT_STROBE_LIGHT  = (1UL << 15),  // Value: 32768 (Warning strobes)
-  BIT_FLASH_TO_PASS = (1UL << 16)   // Value: 65536 (Lichthupe / Optical horn sequence)
-  // Available: Bits 17 to 31 (Over 2 billion possible combinations!)
+  BIT_FLASH_TO_PASS = (1UL << 16),  // Value: 65536 (Lichthupe / Optical horn sequence)
+  BIT_STEERING_LEFT = (1UL << 17),  // Value: 131072 (Steering Left Indicator)
+  BIT_STEERING_RIGHT = (1UL << 18), // Value: 262144 (Steering Right Indicator)
+  BIT_BI_XENON       = (1UL << 19),  // Value: 524288 (For special bi-xenon headlights with motorized shutter)
+  BIT_AUX1            = (1UL << 20),  // Value: 1048576 (e.g., Working light)
+  BIT_AUX2            = (1UL << 21)  // Value: 2097152 (Spare bit for future use)
+  // Available: Bits 22 to 31 (Over 2 billion possible combinations!)
 };
 
 enum CombinedLightStates: uint32_t {

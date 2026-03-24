@@ -4,7 +4,10 @@ GlobalEffects::GlobalEffects()
 	: leftTurnSignal(false), rightTurnSignal(false), blink(), 
 	strobeSignal(false), strobeStartMillis(0),
 	beacon1position(0), beacon1previousMillis(0),
-	beacon2position(0), beacon2previousMillis(0) {}
+	beacon2position(0), beacon2previousMillis(0),
+	flashToPassSignal(false),
+	corneringLeftOffMillis(0), corneringRightOffMillis(0),
+	corneringLeftSignal(false), corneringRightSignal(false) {}
 
 void GlobalEffects::updateTurnIndicators(uint32_t globalInputState) {
 	if(globalInputState & BIT_HAZARD_LIGHT) {
@@ -88,10 +91,66 @@ void GlobalEffects::updateBeacon(uint32_t globalInputState) {
 	}
 };
 
+void GlobalEffects::updateFlashToPass(uint32_t globalInputState) {
+	if(globalInputState & BIT_FLASH_TO_PASS) {
+		if (millis() % activeEffectsConfig.flashToPassFreq < activeEffectsConfig.flashToPassFreq / 2) {
+			flashToPassSignal = !flashToPassSignal;
+		}
+	} else {
+		flashToPassSignal = false;
+	}
+}
+
+void GlobalEffects::updateCornering(uint32_t globalInputState) {
+	if(!(globalInputState & BIT_HAZARD_LIGHT)) {
+		if(globalInputState & (BIT_STEERING_LEFT | BIT_TURN_SIGNAL_L)) {
+			corneringLeftSignal = true;
+			corneringRightSignal = false;
+			corneringLeftOffMillis = 0;
+		}
+	
+		if(globalInputState & (BIT_STEERING_RIGHT | BIT_TURN_SIGNAL_R)) {
+			corneringRightSignal = true;
+			corneringLeftSignal = false;
+			corneringRightOffMillis = 0;
+		}
+	}
+
+	if (corneringLeftSignal == true
+		&& (
+			(globalInputState & BIT_HAZARD_LIGHT) 
+		|| !(globalInputState & (BIT_STEERING_LEFT | BIT_TURN_SIGNAL_L))
+	)) {
+		if(corneringLeftOffMillis == 0) {
+			corneringLeftOffMillis = millis();
+		}
+		if (corneringLeftOffMillis > 0 && millis() - corneringLeftOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
+			corneringLeftSignal = false;
+			corneringLeftOffMillis = 0;
+		}
+	}
+
+	if (corneringRightSignal == true
+		&& (
+			(globalInputState & BIT_HAZARD_LIGHT) 
+		|| !(globalInputState & (BIT_STEERING_RIGHT | BIT_TURN_SIGNAL_R))
+	)) {
+		if(corneringRightOffMillis == 0) {
+			corneringRightOffMillis = millis();
+		}
+		if (corneringRightOffMillis > 0 && millis() - corneringRightOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
+			corneringRightSignal = false;
+			corneringRightOffMillis = 0;
+		}
+	}
+}
+
 void GlobalEffects::update(uint32_t globalInputState) {
 	updateTurnIndicators(globalInputState);
 	updateStrobe(globalInputState);
 	updateBeacon(globalInputState);
+	updateFlashToPass(globalInputState);
+	updateCornering(globalInputState);
 };
 
 uint16_t GlobalEffects::getActiveEffectMask() {
@@ -107,6 +166,18 @@ uint16_t GlobalEffects::getActiveEffectMask() {
 
 	if(strobeSignal) {
 		state |= BIT_GLOBAL_STROBE;
+	}
+
+	if(flashToPassSignal) {
+		state |= BIT_GLOBAL_FLASH_TO_PASS;
+	}
+
+	if(corneringLeftSignal) {
+		state |= BIT_GLOBAL_CORNERING_L;
+	}
+
+	if(corneringRightSignal) {
+		state |= BIT_GLOBAL_CORNERING_R;
 	}
 
 	return state;

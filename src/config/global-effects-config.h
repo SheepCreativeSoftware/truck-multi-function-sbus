@@ -5,6 +5,9 @@ enum GlobalOutputEffects: uint16_t {
 	BIT_GLOBAL_TURN_L = (1U << 0),
 	BIT_GLOBAL_TURN_R = (1U << 1),
 	BIT_GLOBAL_STROBE = (1U << 2),
+  BIT_GLOBAL_FLASH_TO_PASS = (1U << 3),
+  BIT_GLOBAL_CORNERING_L = (1U << 4),
+  BIT_GLOBAL_CORNERING_R = (1U << 5),
 };
 
 struct GlobalEffectsConfig {
@@ -30,6 +33,9 @@ struct GlobalEffectsConfig {
   
   // --- Specific settings ---
   uint8_t starterDimFactor;  // Dimming percentage (e.g., 50%) during motor start
+
+  // --- Cornering Lights ---
+  uint16_t corneringLightOffDelay; // Time to turn cornering light off
 };
 
 extern GlobalEffectsConfig activeEffectsConfig;

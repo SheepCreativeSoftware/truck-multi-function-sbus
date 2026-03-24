@@ -9,6 +9,7 @@ private:
     
     volatile uint32_t lastRiseTime;
     volatile uint16_t rawValues[NUM_PPM_CHANNELS];
+    volatile uint16_t smoothenValues[NUM_PPM_CHANNELS];
     volatile uint8_t currentChannelCount;
     volatile uint32_t lastValidPulseTime;
     
@@ -31,4 +32,6 @@ public:
     bool isPulsePresent();
     uint16_t getRawValue(uint8_t channel);
 	uint16_t getNormalizedValue(uint8_t index);
+    uint16_t getNormalizedSmoothValue(uint8_t index);
+    void updateSmoothValue(uint8_t index);
 };

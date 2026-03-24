@@ -40,6 +40,7 @@ void MemoryManager::loadConfig() {
     activeEffectsConfig.beacon2Speed = 2000;
     activeEffectsConfig.beacon2MaxLeds = 4;
     activeEffectsConfig.starterDimFactor = 50;
+    activeEffectsConfig.corneringLightOffDelay = 5000;
   }
 }
 

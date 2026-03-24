@@ -13,6 +13,13 @@ class GlobalEffects {
 	bool strobeSignal;
 	uint32_t strobeStartMillis;
 
+	bool flashToPassSignal;
+
+	bool corneringLeftSignal;
+	bool corneringRightSignal;
+	uint32_t corneringLeftOffMillis;
+	uint32_t corneringRightOffMillis;
+
 	uint8_t beacon1position;
 	uint32_t beacon1previousMillis;
 	uint8_t beacon2position;
@@ -22,6 +29,8 @@ class GlobalEffects {
 	void updateStrobe(uint32_t globalInputState);
 	void updateSingleBeacon(uint16_t beaconSpeed, uint8_t beaconMaxLeds, uint32_t* beaconPreviousMillis, uint8_t* beaconPosition);
 	void updateBeacon(uint32_t globalInputState);
+	void updateFlashToPass(uint32_t globalInputState);
+	void updateCornering(uint32_t globalInputState);
 	public:
 	GlobalEffects();
 

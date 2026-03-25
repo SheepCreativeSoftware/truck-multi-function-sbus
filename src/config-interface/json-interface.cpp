@@ -89,6 +89,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         activeEffectsConfig.beacon1MaxLeds = effConfig["bcn1Max"] | activeEffectsConfig.beacon1MaxLeds;
         activeEffectsConfig.beacon2MaxLeds = effConfig["bcn2Max"] | activeEffectsConfig.beacon2MaxLeds;
         activeEffectsConfig.flashToPassFreq = effConfig["ftpFreq"] | activeEffectsConfig.flashToPassFreq;
+        activeEffectsConfig.corneringLightOffDelay = effConfig["cornerOff"] | activeEffectsConfig.corneringLightOffDelay;
         
         Serial.println("Effects updated!");
     }

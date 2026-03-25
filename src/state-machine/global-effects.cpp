@@ -102,43 +102,53 @@ void GlobalEffects::updateFlashToPass(uint32_t globalInputState) {
 }
 
 void GlobalEffects::updateCornering(uint32_t globalInputState) {
+	uint32_t now = millis();
+
 	if(!(globalInputState & BIT_HAZARD_LIGHT)) {
-		if(globalInputState & (BIT_STEERING_LEFT | BIT_TURN_SIGNAL_L)) {
+		if(globalInputState & BIT_TURN_SIGNAL_L) {
 			corneringLeftSignal = true;
 			corneringRightSignal = false;
-			corneringLeftOffMillis = 0;
+			corneringRightOffMillis = 0;
 		}
 	
-		if(globalInputState & (BIT_STEERING_RIGHT | BIT_TURN_SIGNAL_R)) {
+		if(globalInputState & BIT_TURN_SIGNAL_R) {
 			corneringRightSignal = true;
 			corneringLeftSignal = false;
-			corneringRightOffMillis = 0;
+			corneringLeftOffMillis = 0;;
 		}
 	}
 
+	if(globalInputState & BIT_STEERING_LEFT) {
+		corneringLeftSignal = true;
+		corneringRightSignal = false;
+		corneringRightOffMillis = 0;
+	}
+
+	if(globalInputState & BIT_STEERING_RIGHT) {
+		corneringRightSignal = true;
+		corneringLeftSignal = false;
+		corneringLeftOffMillis = 0;
+	}
+
 	if (corneringLeftSignal == true
-		&& (
-			(globalInputState & BIT_HAZARD_LIGHT) 
-		|| !(globalInputState & (BIT_STEERING_LEFT | BIT_TURN_SIGNAL_L))
-	)) {
+		&& !(globalInputState & (BIT_STEERING_LEFT | BIT_TURN_SIGNAL_L))
+	) {
 		if(corneringLeftOffMillis == 0) {
-			corneringLeftOffMillis = millis();
+			corneringLeftOffMillis = now;
 		}
-		if (corneringLeftOffMillis > 0 && millis() - corneringLeftOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
+		if (corneringLeftOffMillis > 0 && now - corneringLeftOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
 			corneringLeftSignal = false;
 			corneringLeftOffMillis = 0;
 		}
 	}
 
 	if (corneringRightSignal == true
-		&& (
-			(globalInputState & BIT_HAZARD_LIGHT) 
-		|| !(globalInputState & (BIT_STEERING_RIGHT | BIT_TURN_SIGNAL_R))
-	)) {
+		&& !(globalInputState & (BIT_STEERING_RIGHT | BIT_TURN_SIGNAL_R))
+	) {
 		if(corneringRightOffMillis == 0) {
-			corneringRightOffMillis = millis();
+			corneringRightOffMillis = now;
 		}
-		if (corneringRightOffMillis > 0 && millis() - corneringRightOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
+		if (corneringRightOffMillis > 0 && now - corneringRightOffMillis >= activeEffectsConfig.corneringLightOffDelay) {
 			corneringRightSignal = false;
 			corneringRightOffMillis = 0;
 		}

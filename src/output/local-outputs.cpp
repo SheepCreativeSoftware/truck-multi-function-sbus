@@ -258,6 +258,30 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
         }
     }
 
+    if (triggerMask & BIT_FOG_L) {
+        if (evalState & BIT_FOG) {
+            return cfg.param1;
+        }
+
+        if (effectState & BIT_GLOBAL_CORNERING_L) {
+            return cfg.param1;
+        } else {
+            return 0;
+        }
+    }
+
+    if (triggerMask & BIT_FOG_R) {
+        if (evalState & BIT_FOG) {
+            return cfg.param1;
+        }
+
+        if (effectState & BIT_GLOBAL_CORNERING_R) {
+            return cfg.param1;
+        } else {
+            return 0;
+        }
+    }
+
     // ====================================================================
     // EARLY EXIT: If the state doesn't match the trigger mask AT ALL, target is 0
     if ((evalState & triggerMask) == 0) {
@@ -308,30 +332,6 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
             } else {
                 return 0;
             }
-        }
-    }
-
-    if (triggerMask & BIT_FOG_L) {
-        if (evalState & BIT_FOG) {
-            return cfg.param1;
-        }
-
-        if (effectState & BIT_GLOBAL_CORNERING_L) {
-            return cfg.param1;
-        } else {
-            return 0;
-        }
-    }
-
-    if (triggerMask & BIT_FOG_R) {
-        if (evalState & BIT_FOG) {
-            return cfg.param1;
-        }
-
-        if (effectState & BIT_GLOBAL_CORNERING_R) {
-            return cfg.param1;
-        } else {
-            return 0;
         }
     }
 

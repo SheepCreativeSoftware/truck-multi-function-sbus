@@ -10,7 +10,7 @@ PpmParser::PpmParser(uint8_t pin)
 }
 
 void PpmParser::begin() {
-    pinMode(inputPin, INPUT_PULLUP);
+    pinMode(inputPin, INPUT_PULLDOWN);
     attachInterruptArg(inputPin, PpmParser::handleInterrupt, this, CHANGE);
 }
 

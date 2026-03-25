@@ -1,13 +1,13 @@
 #include "global-effects.h"
 
 GlobalEffects::GlobalEffects() 
-	: leftTurnSignal(false), rightTurnSignal(false), blink(), 
+	: blink(), leftTurnSignal(false), rightTurnSignal(false),  
 	strobeSignal(false), strobeStartMillis(0),
-	beacon1position(0), beacon1previousMillis(0),
-	beacon2position(0), beacon2previousMillis(0),
 	flashToPassSignal(false),
+	corneringLeftSignal(false), corneringRightSignal(false),
 	corneringLeftOffMillis(0), corneringRightOffMillis(0),
-	corneringLeftSignal(false), corneringRightSignal(false) {}
+	beacon1position(0), beacon1previousMillis(0),
+	beacon2position(0), beacon2previousMillis(0) {}
 
 void GlobalEffects::updateTurnIndicators(uint32_t globalInputState) {
 	if(globalInputState & BIT_HAZARD_LIGHT) {

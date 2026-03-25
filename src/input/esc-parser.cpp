@@ -1,8 +1,8 @@
 #include "esc-parser.h"
 
 EscParser::EscParser(uint8_t brakePin, uint8_t reversePin) 
-    : _brakePin(brakePin), _reversePin(reversePin),
-    brakingActive(false), reverseActive(false), activeEscMask(0) {}
+    : brakingActive(false), reverseActive(false),
+    _brakePin(brakePin), _reversePin(reversePin), activeEscMask(0) {}
 
 void EscParser::begin() {
     pinMode(_brakePin, INPUT_PULLUP);

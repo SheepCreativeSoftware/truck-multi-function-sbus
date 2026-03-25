@@ -30,7 +30,7 @@ void MemoryManager::loadConfig() {
     prefs.getBytes(KEY_EFFECTS_CFG, &activeEffectsConfig, sizeof(GlobalEffectsConfig));
   } else {
     // Apply safe defaults for the very first boot
-    activeEffectsConfig.turnSignalFreq = 500;
+    activeEffectsConfig.turnSignalFreq = 1000;
     activeEffectsConfig.strobeFlashDuration = 40;
     activeEffectsConfig.strobeShortPause = 60;
     activeEffectsConfig.strobeLongPause = 400;
@@ -41,6 +41,9 @@ void MemoryManager::loadConfig() {
     activeEffectsConfig.beacon2MaxLeds = 4;
     activeEffectsConfig.starterDimFactor = 50;
     activeEffectsConfig.corneringLightOffDelay = 5000;
+    activeEffectsConfig.xenonFlashDuration = 30;
+    activeEffectsConfig.xenonFadeDuration = 8000;
+    activeEffectsConfig.xenonLowBeamStartPwm = 50;
   }
 }
 

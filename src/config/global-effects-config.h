@@ -36,6 +36,11 @@ struct GlobalEffectsConfig {
 
   // --- Cornering Lights ---
   uint16_t corneringLightOffDelay; // Time to turn cornering light off
+
+  // -- Bi-Xenon Headlight Effect ---
+  uint16_t xenonFlashDuration; // Duration of the initial flash when turning on the headlights
+  uint16_t xenonFadeDuration;  // Duration of the fade from low beam to high beam after the initial flash
+  uint32_t xenonLowBeamStartPwm; // Starting PWM value for low beam when fading up to high beam
 };
 
 extern GlobalEffectsConfig activeEffectsConfig;

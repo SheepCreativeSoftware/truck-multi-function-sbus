@@ -383,16 +383,16 @@ uint16_t LocalOutputController::biXenonTargetPwm(int index, const LocalOutputCon
 
     // Calculate how much time has passed since the last frame
     uint32_t elapsed = currentMillis - xenonStartMillis[index];
-    uint32_t flashDuration = 30; // Flash for the first 30 milliseconds
-    uint32_t fadeDuration = 8000; // Total fade duration after the flash
+    uint16_t flashDuration = activeEffectsConfig.xenonFlashDuration; // e.g., 30 milliseconds for the initial flash
+    uint16_t fadeDuration = activeEffectsConfig.xenonFadeDuration; // Total fade duration after the flash
 
     if (elapsed <= flashDuration) {
         // Flash for 30 milliseconds at max brightness for that "popping" effect
         xenonCurrentPwmValues[index] = cfg.param2; // Max brightness
     } else if (elapsed <= fadeDuration) {
         // After 30ms, snap to half of the low beam target brightness and then fade up to the full target over the next 8s
-        uint32_t startPwm = 50; // Start at half brightness
-        uint32_t endPwm = targetPwm; // End at the calculated target brightness
+        uint16_t startPwm = activeEffectsConfig.xenonLowBeamStartPwm; // Start at half brightness
+        uint16_t endPwm = targetPwm; // End at the calculated target brightness
         uint32_t fadeElapsed = elapsed - flashDuration; // Time since the initial flash
 
         // Linear fade calculation

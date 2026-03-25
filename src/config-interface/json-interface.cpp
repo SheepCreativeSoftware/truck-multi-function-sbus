@@ -14,6 +14,15 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         return;
     }
 
+    // --- Main Config ---
+    if(doc["main"].is<JsonObject>()) {
+        JsonObject genConfig = doc["main"];
+        activeMainConfig.failsafeMask = genConfig["fsMask"].as<uint32_t>() | activeMainConfig.failsafeMask;
+        activeMainConfig.failsafeTimeoutMs = genConfig["fsTimeout"].as<uint16_t>() | activeMainConfig.failsafeTimeoutMs;
+        activeMainConfig.ppmMode = static_cast<PpmInputMode>(genConfig["ppmMode"].as<uint8_t>() | static_cast<uint8_t>(activeMainConfig.ppmMode));
+        Serial.println("Main config updated!");
+    }
+
     // --- 1. OUTPUTS ---
     if (doc["outputs"].is<JsonArray>()) {
         JsonArray outputs = doc["outputs"].as<JsonArray>();
@@ -88,6 +97,9 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         activeEffectsConfig.beacon2MaxLeds = effConfig["bcn2Max"] | activeEffectsConfig.beacon2MaxLeds;
         activeEffectsConfig.flashToPassFreq = effConfig["ftpFreq"] | activeEffectsConfig.flashToPassFreq;
         activeEffectsConfig.corneringLightOffDelay = effConfig["cornerOff"] | activeEffectsConfig.corneringLightOffDelay;
+        activeEffectsConfig.xenonFlashDuration = effConfig["xenFlash"] | activeEffectsConfig.xenonFlashDuration;
+        activeEffectsConfig.xenonFadeDuration = effConfig["xenFade"] | activeEffectsConfig.xenonFadeDuration;
+        activeEffectsConfig.xenonLowBeamStartPwm = effConfig["xenLowPwm"] | activeEffectsConfig.xenonLowBeamStartPwm;
         
         Serial.println("Effects updated!");
     }

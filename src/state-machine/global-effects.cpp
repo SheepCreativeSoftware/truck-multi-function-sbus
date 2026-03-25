@@ -94,7 +94,9 @@ void GlobalEffects::updateBeacon(uint32_t globalInputState) {
 void GlobalEffects::updateFlashToPass(uint32_t globalInputState) {
 	if(globalInputState & BIT_FLASH_TO_PASS) {
 		if (millis() % activeEffectsConfig.flashToPassFreq < activeEffectsConfig.flashToPassFreq / 2) {
-			flashToPassSignal = !flashToPassSignal;
+			flashToPassSignal = true;
+		} else {
+			flashToPassSignal = false;
 		}
 	} else {
 		flashToPassSignal = false;

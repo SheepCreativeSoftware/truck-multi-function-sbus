@@ -23,12 +23,16 @@ private:
     uint16_t lastPwmValues[NUM_LOCAL_OUTPUTS];
     uint16_t mappedDuties[NUM_LOCAL_OUTPUTS];
 
+    uint16_t xenonCurrentPwmValues[NUM_LOCAL_OUTPUTS]; 
+    uint32_t xenonStartMillis[NUM_LOCAL_OUTPUTS];
+
     void resetOutput(uint8_t pin, uint8_t channel);
 
     bool isSoftwarePWMOutput(uint8_t pin);
 
     // Helper: Calculates the exact target brightness based on priorities
     uint16_t calculateTargetPwm(const LocalOutputConfig& cfg, uint32_t inputState, uint32_t effectState, uint8_t beacon1Pos, uint8_t beacon2Pos);
+    uint16_t biXenonTargetPwm(int index, const LocalOutputConfig& cfg, uint32_t inputState, uint32_t effectState);
     
     // Helper: Moves the current value towards the target over time
     uint16_t processFading(int index, const LocalOutputConfig& cfg, uint16_t targetPwm);

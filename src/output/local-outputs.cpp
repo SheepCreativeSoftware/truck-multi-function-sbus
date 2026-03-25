@@ -114,7 +114,13 @@ void LocalOutputController::update(uint32_t inputState, uint32_t effectState, ui
 
         if (cfg.mode == OutputMode::PWM) {
             // 1. Brain: What is the base target brightness?
-            uint16_t target = calculateTargetPwm(cfg, inputState, effectState, beacon1Pos, beacon2Pos);
+            uint16_t target = 0;
+
+            if (cfg.triggerMask == BIT_BI_XENON) {
+                target = biXenonTargetPwm(i, cfg, inputState, effectState);
+            } else {
+                target = calculateTargetPwm(cfg, inputState, effectState, beacon1Pos, beacon2Pos);
+            }
             
             // 1.5. Modifier: Apply Starter Dimming if active and configured for this pin
             if ((inputState & BIT_STARTER_DIM) && (cfg.triggerMask & BIT_STARTER_DIM)) {
@@ -122,9 +128,13 @@ void LocalOutputController::update(uint32_t inputState, uint32_t effectState, ui
                 // Cast to uint32_t prevents overflow during multiplication before division
                 target = (uint16_t)(((uint32_t)target * activeEffectsConfig.starterDimFactor) / 100);
             }
+
+            uint16_t actualValue = target;
             
             // 2. Muscle: Fade towards that target
-            uint16_t actualValue = processFading(i, cfg, target);
+            if (cfg.triggerMask != BIT_BI_XENON) {
+                actualValue = processFading(i, cfg, target);
+            }
 
             if(isSoftwarePWMOutput(cfg.pin)) {
                 updatePWMMapping(i, actualValue);
@@ -348,6 +358,56 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
 
     // --- FALLBACK: Standard Output ---
     return cfg.param1; 
+}
+
+uint16_t LocalOutputController::biXenonTargetPwm(int index, const LocalOutputConfig& cfg, uint32_t inputState, uint32_t effectState) {
+    uint32_t currentMillis = millis();
+    uint16_t targetPwm = 0;
+
+    if(inputState & BIT_LOW_BEAM) {
+        targetPwm = cfg.param1; // Base brightness for low beam
+    }
+
+    if((inputState & BIT_HIGH_BEAM) || (effectState & BIT_FLASH_TO_PASS)) {
+        targetPwm = cfg.param2; // Brighter setting for high beam
+    }
+
+    if(targetPwm == 0) {
+        xenonCurrentPwmValues[index] = 0; // Snap to 0 immediately when off, no fading needed
+        return processFading(index, cfg, 0);
+    }
+
+    if(targetPwm != 0 && xenonCurrentPwmValues[index] == 0) {
+        xenonStartMillis[index] = currentMillis; // Reset fade timer on target change
+    }
+
+    // Calculate how much time has passed since the last frame
+    uint32_t elapsed = currentMillis - xenonStartMillis[index];
+    uint32_t flashDuration = 30; // Flash for the first 30 milliseconds
+    uint32_t fadeDuration = 8000; // Total fade duration after the flash
+
+    if (elapsed <= flashDuration) {
+        // Flash for 30 milliseconds at max brightness for that "popping" effect
+        xenonCurrentPwmValues[index] = cfg.param2; // Max brightness
+    } else if (elapsed <= fadeDuration) {
+        // After 30ms, snap to half of the low beam target brightness and then fade up to the full target over the next 8s
+        uint32_t startPwm = 50; // Start at half brightness
+        uint32_t endPwm = targetPwm; // End at the calculated target brightness
+        uint32_t fadeElapsed = elapsed - flashDuration; // Time since the initial flash
+
+        // Linear fade calculation
+        if (fadeElapsed < fadeDuration) {
+            uint32_t step = (fadeElapsed * (endPwm - startPwm)) / fadeDuration;
+            xenonCurrentPwmValues[index] = (uint16_t)(startPwm + step);
+        } else {
+            xenonCurrentPwmValues[index] = (uint16_t)endPwm; // Ensure it reaches full target after fade duration
+
+        }
+    } else {
+        xenonCurrentPwmValues[index] = processFading(index, cfg, targetPwm);; // Maintain the target brightness after fade
+    }
+
+    return xenonCurrentPwmValues[index];
 }
 
 uint16_t LocalOutputController::processFading(int index, const LocalOutputConfig& cfg, uint16_t targetPwm) {

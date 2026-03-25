@@ -17,20 +17,18 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
     // --- 1. OUTPUTS ---
     if (doc["outputs"].is<JsonArray>()) {
         JsonArray outputs = doc["outputs"].as<JsonArray>();
+        size_t index = 0;
         for (JsonObject outConfig : outputs) {
-            uint8_t targetPin = outConfig["pin"];
-            for (int i = 0; i < NUM_LOCAL_OUTPUTS; i++) {
-                if (activeMainConfig.localOutputs[i].pin == targetPin || activeMainConfig.localOutputs[i].mode == OutputMode::NONE) {
-                    activeMainConfig.localOutputs[i].pin = targetPin;
-                    activeMainConfig.localOutputs[i].mode = static_cast<OutputMode>(outConfig["mode"].as<uint8_t>());
-                    activeMainConfig.localOutputs[i].triggerMask = outConfig["mask"].as<uint32_t>();
-                    activeMainConfig.localOutputs[i].param1 = outConfig["p1"].as<uint16_t>();
-                    activeMainConfig.localOutputs[i].param2 = outConfig["p2"].as<uint16_t>();
-                    activeMainConfig.localOutputs[i].param3 = outConfig["p3"].as<uint16_t>();
-                    activeMainConfig.localOutputs[i].fadeTime = outConfig["fade"].as<uint16_t>();
-                    break; 
-                }
+            if(index < NUM_LOCAL_OUTPUTS && index < outputs.size()) {
+                activeMainConfig.localOutputs[index].pin = outConfig["pin"].as<uint8_t>();
+                activeMainConfig.localOutputs[index].mode = static_cast<OutputMode>(outConfig["mode"].as<uint8_t>());
+                activeMainConfig.localOutputs[index].triggerMask = outConfig["mask"].as<uint32_t>();
+                activeMainConfig.localOutputs[index].param1 = outConfig["p1"].as<uint16_t>();
+                activeMainConfig.localOutputs[index].param2 = outConfig["p2"].as<uint16_t>();
+                activeMainConfig.localOutputs[index].param3 = outConfig["p3"].as<uint16_t>();
+                activeMainConfig.localOutputs[index].fadeTime = outConfig["fade"].as<uint16_t>();
             }
+            index++;
         }
         Serial.println("Outputs updated!");
         outputController.begin(); // Re-init hardware pins

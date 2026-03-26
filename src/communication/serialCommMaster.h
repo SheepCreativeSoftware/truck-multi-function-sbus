@@ -16,45 +16,19 @@
  * If not, see <https://www.gnu.org/licenses/>.
  ************************************/
 
-#ifndef _SERIAL_COMM_MASTER_H_
-#define _SERIAL_COMM_MASTER_H_
-
-#include "Arduino.h"
-#include "HardwareSerial.h"
-
-enum LightIdentifier {
-	PARK_LIGHT = 0,
-	BRAKE_LIGHT = 1,
-	REVERSE_LIGHT = 2,
-	RIGHT_BLINK = 3,
-	LEFT_BLINK = 4,
-	AUX_LIGHT = 5,
-	BEACON_LIGHT = 6,
-	DIMM_LIGHTS = 7
-};
-
-enum AdditionalDataIdentifier {
-	LEFT_TURN_INDICATOR = 0,
-	RIGHT_TURN_INDICATOR = 1,
-	HAZARD_STATE = 2,
-	SERVO_POSITION_DOWN = 3,
-	SERVO_POSITION_UP = 4
-};
-
-enum ServoDataIdentifier {
-	SERVO_CHANNEL_1 = 0,
-	SERVO_CHANNEL_2 = 1
-};
+#pragma once
+#include <Arduino.h>
+#include <HardwareSerial.h>
+#include "../config/main-config.h"
+#include "../config/light-mode.h"
+#include "../config/global-effects-config.h"
 
 class SerialCommMaster {
 public:
-	void begin(HardwareSerial* serialPort, uint32_t baud, uint8_t byteFormat, long timeout, long polling,
-			   uint8_t txEnablePin, uint8_t protocolVersion = 1);
+	void begin(HardwareSerial* serialPort, uint32_t baud, SerialConfig byteFormat, long timeout, long polling, uint8_t txEnablePin);
 
-	uint16_t update();
-	void setLightData(LightIdentifier lightOption, bool lightState);
-	void setAdditionalData(AdditionalDataIdentifier additionalOption, bool additionalState);
-	void setServoData(ServoDataIdentifier servoOption, uint16_t servoValue);
+	uint16_t update(uint32_t inputState, uint32_t effectState,  uint16_t* servoStateArray);
+	
 
 private:
 	// Constants
@@ -74,7 +48,6 @@ private:
 	HardwareSerial* _serialPort;
 	uint8_t _txEnablePin;
 	uint16_t _errorCount;
-	uint8_t _protocolVersion;
 	uint32_t _timeout;
 	uint32_t _polling;
 	uint16_t _frameDelay;
@@ -83,21 +56,10 @@ private:
 	uint8_t _frame[BUFFER_SIZE];
 	State _state;
 
-	uint8_t _lightDataFromSerial;
-	uint8_t _additionalDataFromSerial;
-	uint16_t _servoMicrosFromSerial[2];
-
 	// Private methods
 	void idle();
 	void waitingForTurnaround();
-	void constructPacket(
-		uint8_t function,
-		uint16_t lightData,
-		uint16_t additionalData = 0,
-		uint16_t servoData1 = 0,
-		uint16_t servoData2 = 0);
+	void constructPacket(uint32_t inputState, uint32_t effectState,  uint16_t* servoStateArray);
 	uint16_t calculateCRC(uint8_t bufferSize);
 	void sendPacket(uint8_t bufferSize);
 };
-
-#endif

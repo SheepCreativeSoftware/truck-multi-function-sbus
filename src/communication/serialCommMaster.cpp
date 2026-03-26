@@ -20,17 +20,15 @@
 void SerialCommMaster::begin(
 	HardwareSerial* serialPort,
 	uint32_t baud,
-	uint8_t byteFormat,
+	SerialConfig byteFormat,
 	long timeout,
 	long polling,
-	uint8_t txEnablePin,
-	uint8_t protocolVersion
+	uint8_t txEnablePin
 ) {
 	_serialPort = serialPort;
 	_timeout = timeout;
 	_polling = polling;
 	_txEnablePin = txEnablePin;
-	_protocolVersion = protocolVersion;
 
 	(*_serialPort).begin(baud, byteFormat);
 	pinMode(_txEnablePin, OUTPUT);
@@ -40,16 +38,12 @@ void SerialCommMaster::begin(
 	_state = WAITING_FOR_TURNAROUND;
 	_frameDelay = 10;
 	_delayStart = 0;
-	_lightDataFromSerial = 0;
-	_additionalDataFromSerial = 0;
-	_servoMicrosFromSerial[0] = 0;
-	_servoMicrosFromSerial[1] = 0;
 }
 
-uint16_t SerialCommMaster::update() {
+uint16_t SerialCommMaster::update(uint32_t inputState, uint32_t effectState,  uint16_t* servoStateArray) {
 	switch (_state) {
 		case IDLE:
-			idle();
+			constructPacket(inputState, effectState, servoStateArray);
 			break;
 		case WAITING_FOR_TURNAROUND:
 			waitingForTurnaround();
@@ -58,45 +52,30 @@ uint16_t SerialCommMaster::update() {
 	return _errorCount;
 }
 
-void SerialCommMaster::idle() {
-	switch (_protocolVersion) {
-		case FUNC_LIGHT_DATA:
-			constructPacket(FUNC_LIGHT_DATA, _lightDataFromSerial);
-			break;
-		case FUNC_LIGHT_SERVO:
-			constructPacket(FUNC_LIGHT_SERVO, _lightDataFromSerial, _additionalDataFromSerial, _servoMicrosFromSerial[0],
-							_servoMicrosFromSerial[1]);
-			break;
-	}
-}
-
 void SerialCommMaster::constructPacket(
-	uint8_t function,
-	uint16_t lightData,
-	uint16_t additionalData,
-	uint16_t servoData1,
-	uint16_t servoData2
+	uint32_t inputState, uint32_t effectState,  uint16_t* servoStateArray
 ) {
-	_frame[0] = function;
-	uint8_t frameSize;
-	switch (function) {
-		case FUNC_LIGHT_DATA:
-			frameSize = 4; // 1 byte function + 1 byte lightData + 2 bytes CRC
-			_frame[1] = lightData & 0x00FF;
-			break;
-		case FUNC_LIGHT_SERVO:
-			frameSize = 9; // 1 byte function + 1 byte lightData + 1 byte additionalData + 2 bytes servo1 + 2 bytes
-						   // servo2 + 2 bytes CRC
-			_frame[1] = lightData & 0x00FF;
-			_frame[2] = additionalData & 0x00FF;
-			_frame[3] = servoData1 >> 8;
-			_frame[4] = servoData1 & 0xFF;
-			_frame[5] = servoData2 >> 8;
-			_frame[6] = servoData2 & 0xFF;
-			break;
-		default:
-			return; // Invalid function, do not send anything
-	}
+	// 1 byte function + 4 byte lightState + 2 byte effectState +
+	// 9 byte ServoData (12bit) + 2 bytes CRC => 18 bytes total
+	uint8_t frameSize = 18;
+	_frame[0] = FUNC_LIGHT_DATA;
+
+	_frame[1] = inputState & 0x00FF;
+	_frame[2] = (inputState >> 8) & 0x00FF;
+	_frame[3] = (inputState >> 16) & 0x00FF;
+	_frame[4] = (inputState >> 24) & 0x00FF;
+
+	_frame[5] = effectState & 0x00FF;
+	_frame[6] = (effectState >> 8) & 0x00FF;
+	_frame[7] = (servoStateArray[SRV_REMOTE_1] >> 4) & 0xFF; // First 8 bits of servo 1
+	_frame[8] = ((servoStateArray[SRV_REMOTE_1] & 0x0F) << 4) | ((servoStateArray[SRV_REMOTE_2] >> 8) & 0x0F); // Last 4 bits of servo 1 and first 4 bits of servo 2
+	_frame[9] = servoStateArray[SRV_REMOTE_2] & 0xFF; // Last 8 bits of servo 2
+	_frame[10] = servoStateArray[SRV_REMOTE_3] >> 4; // First 8 bits of servo 3
+	_frame[11] = ((servoStateArray[SRV_REMOTE_3] & 0x0F) << 4) | ((servoStateArray[SRV_REMOTE_4] >> 8) & 0x0F); // Last 4 bits of servo 3 and first 4 bits of servo 4
+	_frame[12] = servoStateArray[SRV_REMOTE_4] & 0xFF; // Last 8 bits of servo 4
+	_frame[13] = servoStateArray[SRV_REMOTE_5] >> 4; // First 8 bits of servo 5
+	_frame[14] = ((servoStateArray[SRV_REMOTE_5] & 0x0F) << 4) | ((servoStateArray[SRV_REMOTE_6] >> 8) & 0x0F); // Last 4 bits of servo 5 and first 4 bits of servo 6
+	_frame[15] = servoStateArray[SRV_REMOTE_6] & 0xFF; // Last 8 bits of servo 6
 
 	uint16_t crc16 = calculateCRC(frameSize - 2);
 	_frame[frameSize - 2] = crc16 >> 8; // Split crc into two bytes
@@ -140,28 +119,4 @@ void SerialCommMaster::sendPacket(uint8_t bufferSize) {
 	digitalWrite(_txEnablePin, LOW);
 
 	_delayStart = millis(); // start the timeout delay
-}
-
-void SerialCommMaster::setLightData(LightIdentifier lightOption, bool lightState) {
-	if (lightState) {
-		uint8_t bitmask = 0x1 << lightOption;
-		_lightDataFromSerial |= bitmask;
-	} else {
-		uint8_t bitmask = ~(0x1 << lightOption);
-		_lightDataFromSerial &= bitmask;
-	}
-}
-
-void SerialCommMaster::setAdditionalData(AdditionalDataIdentifier additionalOption, bool additionalState) {
-	if (additionalState) {
-		uint8_t bitmask = 0x1 << additionalOption;
-		_additionalDataFromSerial |= bitmask;
-	} else {
-		uint8_t bitmask = ~(0x1 << additionalOption);
-		_additionalDataFromSerial &= bitmask;
-	}
-}
-
-void SerialCommMaster::setServoData(ServoDataIdentifier servoOption, uint16_t servoValue) {
-	_servoMicrosFromSerial[servoOption] = servoValue;
 }

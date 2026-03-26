@@ -27,6 +27,7 @@
 #include "src/state-machine/global-effects.h"
 #include "src/output/local-outputs.h"
 #include "src/config-interface/json-interface.h"
+#include "src/communication/serialCommMaster.h"
 
 // Initialize the parser using hardware Serial1, RX on pin 16, TX disabled (-1)
 SbusParser sbusInput(&Serial1, D3, -1, false);
@@ -35,7 +36,7 @@ EscParser  escInput(A2, A4);
 GlobalEffects globalEffects;
 LocalOutputController localOutputController;
 JsonInterface jsonUi;
-
+SerialCommMaster serialCommMaster;
 // In main.cpp
 // Index 0-5: Local Master Board Servos
 // Index 6-11: Remote RS485 Bus Servos
@@ -56,6 +57,8 @@ void setup() {
   escInput.begin();
 
   localOutputController.begin();
+
+  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 50, D2);
 }
 
 
@@ -79,4 +82,6 @@ void loop() {
   uint8_t beacon2pos = globalEffects.getBeaconPosition(2);
 
   localOutputController.update(globalState, effectState, beacon1pos, beacon2pos, globalServoState);
+
+  serialCommMaster.update(globalState, effectState, globalServoState);
 }

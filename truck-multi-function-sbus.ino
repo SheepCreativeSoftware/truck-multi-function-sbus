@@ -58,7 +58,7 @@ void setup() {
 
   localOutputController.begin();
 
-  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 50, D2);
+  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 30, D2);
 }
 
 

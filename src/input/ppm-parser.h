@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "../config/main-config.h"
 
+#define HISTORY_SIZE 3
 class PpmParser {
 private:
     uint8_t inputPin;
@@ -9,9 +10,13 @@ private:
     
     volatile uint32_t lastRiseTime;
     volatile uint16_t rawValues[NUM_PPM_CHANNELS];
-    volatile uint16_t smoothenValues[NUM_PPM_CHANNELS];
     volatile uint8_t currentChannelCount;
     volatile uint32_t lastValidPulseTime;
+    volatile uint32_t lastValidPulseStart;
+    uint16_t smoothenValues[NUM_PPM_CHANNELS];
+    uint16_t historyChannels[NUM_PPM_CHANNELS][HISTORY_SIZE];
+    uint8_t historyIndex;
+    uint32_t lastValidPacketTime;
     
     uint32_t activePpmMask;
 
@@ -33,5 +38,6 @@ public:
     uint16_t getRawValue(uint8_t channel);
 	uint16_t getNormalizedValue(uint8_t index);
     uint16_t getNormalizedSmoothValue(uint8_t index);
-    void updateSmoothValue(uint8_t index);
+    void updateSmoothValue();
+    uint16_t calculateMedian(uint8_t index);
 };

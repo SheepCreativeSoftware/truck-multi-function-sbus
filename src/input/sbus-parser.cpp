@@ -1,7 +1,17 @@
 #include "sbus-parser.h"
 
 SbusParser::SbusParser(HardwareSerial* serialPort, int8_t rxPin, int8_t txPin, bool invert)
-    : receiver(serialPort, rxPin, txPin, invert), activeSbusMask(0) {}
+    : receiver(serialPort, rxPin, txPin, invert), activeSbusMask(0) {
+    // Initialize smoothenValues array with 1024 for all channels
+    for (uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
+        smoothenValues[i] = 1024;
+        // Initialize historyChannels array with 1024 for all history entries
+        for (uint8_t j = 0; j < HISTORY_SIZE; j++) {
+            historyChannels[i][j] = 1024;
+        }
+    }
+    historyIndex = 0;
+}
 
 void SbusParser::begin() {
     receiver.begin();
@@ -18,12 +28,13 @@ void SbusParser::update(bool isLinkActive, uint16_t* servoStateArray) {
 
     // Link is active, process normally
     receiver.getChannel(&channelData);
+    updateSmoothValue();
     uint32_t newMask = 0;
 
     for (uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
         InputConfig& cfg = activeMainConfig.sbusInputs[i];
-        uint16_t val = getChannelValue(i);
-
+        uint16_t val = getSmoothValue(i);
+        
         if (cfg.targetServoIndex != InputServoMapping::NONE && cfg.targetServoIndex <= InputServoMapping::SRV_REMOTE_6) {
             servoStateArray[cfg.targetServoIndex - 1] = val;
         }
@@ -33,7 +44,6 @@ void SbusParser::update(bool isLinkActive, uint16_t* servoStateArray) {
         }
 
         if (cfg.type == InputType::SWITCH_3POS) {
-            
             if (val < cfg.thresholdLow) {
                 newMask |= cfg.targetMaskLow;
             } 
@@ -85,4 +95,40 @@ uint16_t SbusParser::getChannelValue(uint8_t index) {
         case 15: return channelData.channel16;
         default: return 1024; 
     }
+}
+
+uint16_t SbusParser::getSmoothValue(uint8_t index) {
+    
+    return smoothenValues[index];
+}
+
+void SbusParser::updateSmoothValue() {
+    uint32_t currentLastPacketTime = receiver.getLastValidPacketTime();
+    if(currentLastPacketTime != lastValidPacketTime) {
+        lastValidPacketTime = currentLastPacketTime;
+        // New packet received, reset history
+        for(uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
+            historyChannels[i][historyIndex] = getChannelValue(i);
+
+            smoothenValues[i] = calculateMedian(i);
+        }
+
+        historyIndex = (historyIndex + 1) % HISTORY_SIZE;
+    }
+}
+
+uint16_t SbusParser::calculateMedian(uint8_t index) {
+    uint16_t sorted[HISTORY_SIZE];
+    memcpy(sorted, historyChannels[index], sizeof(uint16_t) * HISTORY_SIZE);
+    // Simple insertion sort
+    for (uint8_t i = 1; i < HISTORY_SIZE; i++) {
+        uint16_t key = sorted[i];
+        int8_t j = i - 1;
+        while (j >= 0 && sorted[j] > key) {
+            sorted[j + 1] = sorted[j];
+            j--;
+        }
+        sorted[j + 1] = key;
+    }
+    return sorted[HISTORY_SIZE / 2]; // Return median
 }

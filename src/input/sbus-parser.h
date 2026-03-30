@@ -3,14 +3,14 @@
 #include "./serialIO/SerialIO.h"
 #include "../config/main-config.h"
 
-#define HISTORY_SIZE 5
+#define SBUS_HISTORY_SIZE 5
 class SbusParser {
 private:
     sbus receiver;
     rc_channels_t channelData;
     uint32_t activeSbusMask; 
     uint16_t smoothenValues[NUM_SBUS_CHANNELS];
-    uint16_t historyChannels[NUM_SBUS_CHANNELS][HISTORY_SIZE];
+    uint16_t historyChannels[NUM_SBUS_CHANNELS][SBUS_HISTORY_SIZE];
     uint8_t historyIndex;
     uint32_t lastValidPacketTime;
     

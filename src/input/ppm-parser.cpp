@@ -10,7 +10,7 @@ PpmParser::PpmParser(uint8_t pin)
     for (uint8_t i = 0; i < NUM_PPM_CHANNELS; i++) {
         smoothenValues[i] = 1500;
         // Initialize historyChannels array with 1500 for all history entries
-        for (uint8_t j = 0; j < HISTORY_SIZE; j++) {
+        for (uint8_t j = 0; j < PPM_HISTORY_SIZE; j++) {
             historyChannels[i][j] = 1500;
         }
     }
@@ -131,15 +131,15 @@ void PpmParser::updateSmoothValue() {
             smoothenValues[i] = calculateMedian(i);
         }
 
-        historyIndex = (historyIndex + 1) % HISTORY_SIZE;
+        historyIndex = (historyIndex + 1) % PPM_HISTORY_SIZE;
     }
 }
 
 uint16_t PpmParser::calculateMedian(uint8_t index) {
-    uint16_t sorted[HISTORY_SIZE];
-    memcpy(sorted, historyChannels[index], sizeof(uint16_t) * HISTORY_SIZE);
+    uint16_t sorted[PPM_HISTORY_SIZE];
+    memcpy(sorted, historyChannels[index], sizeof(uint16_t) * PPM_HISTORY_SIZE);
     // Simple insertion sort
-    for (uint8_t i = 1; i < HISTORY_SIZE; i++) {
+    for (uint8_t i = 1; i < PPM_HISTORY_SIZE; i++) {
         uint16_t key = sorted[i];
         int8_t j = i - 1;
         while (j >= 0 && sorted[j] > key) {
@@ -148,5 +148,5 @@ uint16_t PpmParser::calculateMedian(uint8_t index) {
         }
         sorted[j + 1] = key;
     }
-    return sorted[HISTORY_SIZE / 2]; // Return median
+    return sorted[PPM_HISTORY_SIZE / 2]; // Return median
 }

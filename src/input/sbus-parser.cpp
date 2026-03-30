@@ -6,7 +6,7 @@ SbusParser::SbusParser(HardwareSerial* serialPort, int8_t rxPin, int8_t txPin, b
     for (uint8_t i = 0; i < NUM_SBUS_CHANNELS; i++) {
         smoothenValues[i] = 1024;
         // Initialize historyChannels array with 1024 for all history entries
-        for (uint8_t j = 0; j < HISTORY_SIZE; j++) {
+        for (uint8_t j = 0; j < SBUS_HISTORY_SIZE; j++) {
             historyChannels[i][j] = 1024;
         }
     }
@@ -113,15 +113,15 @@ void SbusParser::updateSmoothValue() {
             smoothenValues[i] = calculateMedian(i);
         }
 
-        historyIndex = (historyIndex + 1) % HISTORY_SIZE;
+        historyIndex = (historyIndex + 1) % SBUS_HISTORY_SIZE;
     }
 }
 
 uint16_t SbusParser::calculateMedian(uint8_t index) {
-    uint16_t sorted[HISTORY_SIZE];
-    memcpy(sorted, historyChannels[index], sizeof(uint16_t) * HISTORY_SIZE);
+    uint16_t sorted[SBUS_HISTORY_SIZE];
+    memcpy(sorted, historyChannels[index], sizeof(uint16_t) * SBUS_HISTORY_SIZE);
     // Simple insertion sort
-    for (uint8_t i = 1; i < HISTORY_SIZE; i++) {
+    for (uint8_t i = 1; i < SBUS_HISTORY_SIZE; i++) {
         uint16_t key = sorted[i];
         int8_t j = i - 1;
         while (j >= 0 && sorted[j] > key) {
@@ -130,5 +130,5 @@ uint16_t SbusParser::calculateMedian(uint8_t index) {
         }
         sorted[j + 1] = key;
     }
-    return sorted[HISTORY_SIZE / 2]; // Return median
+    return sorted[SBUS_HISTORY_SIZE / 2]; // Return median
 }

@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "../config/main-config.h"
 
-#define HISTORY_SIZE 3
+#define PPM_HISTORY_SIZE 3
 class PpmParser {
 private:
     uint8_t inputPin;
@@ -14,7 +14,7 @@ private:
     volatile uint32_t lastValidPulseTime;
     volatile uint32_t lastValidPulseStart;
     uint16_t smoothenValues[NUM_PPM_CHANNELS];
-    uint16_t historyChannels[NUM_PPM_CHANNELS][HISTORY_SIZE];
+    uint16_t historyChannels[NUM_PPM_CHANNELS][PPM_HISTORY_SIZE];
     uint8_t historyIndex;
     uint32_t lastValidPacketTime;
     

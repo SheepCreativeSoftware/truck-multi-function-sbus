@@ -106,6 +106,16 @@ void GlobalEffects::updateFlashToPass(uint32_t globalInputState) {
 void GlobalEffects::updateCornering(uint32_t globalInputState) {
 	uint32_t now = millis();
 
+	// Parking light or low beam must be on for cornering lights to work.
+	if(!(globalInputState & (BIT_PARKING_LIGHT | BIT_LOW_BEAM))) {
+		corneringLeftSignal = false;
+		corneringRightSignal = false;
+		corneringLeftOffMillis = 0;
+		corneringRightOffMillis = 0;
+		return;
+	}
+
+	// If hazards are on, cornering lights should not be triggered by turn signals, but only by steering input
 	if(!(globalInputState & BIT_HAZARD_LIGHT)) {
 		if(globalInputState & BIT_TURN_SIGNAL_L) {
 			corneringLeftSignal = true;
@@ -120,6 +130,7 @@ void GlobalEffects::updateCornering(uint32_t globalInputState) {
 		}
 	}
 
+	// Steering input should override turn signals for cornering lights
 	if(globalInputState & BIT_STEERING_LEFT) {
 		corneringLeftSignal = true;
 		corneringRightSignal = false;

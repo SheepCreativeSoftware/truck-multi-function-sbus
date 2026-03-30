@@ -46,9 +46,10 @@ enum LightBits : uint32_t {
   BIT_STEERING_LEFT = (1UL << 17),  // Value: 131072 (Steering Left Indicator)
   BIT_STEERING_RIGHT = (1UL << 18), // Value: 262144 (Steering Right Indicator)
   BIT_BI_XENON       = (1UL << 19),  // Value: 524288 (For special bi-xenon headlights with motorized shutter)
-  BIT_AUX1            = (1UL << 20),  // Value: 1048576 (e.g., Working light)
-  BIT_AUX2            = (1UL << 21)  // Value: 2097152 (Spare bit for future use)
-  // Available: Bits 22 to 31 (Over 2 billion possible combinations!)
+  BIT_AUX1           = (1UL << 20),  // Value: 1048576 (e.g., Working light)
+  BIT_AUX2           = (1UL << 21),  // Value: 2097152 (Spare bit for future use)
+  BIT_DRL            = (1UL << 22),  // Value: 4194304 (Daytime Running Light - Virtual bit for daytime mode)
+  // Available: Bits 23 to 31 (Over 2 billion possible combinations!)
 };
 
 enum CombinedLightStates: uint32_t {

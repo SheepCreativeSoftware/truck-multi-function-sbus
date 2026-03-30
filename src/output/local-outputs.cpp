@@ -292,6 +292,7 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
         }
     }
 
+    // --- EFFECTS: Flash to Pass on High beam output ---
     if (triggerMask & BIT_HIGH_BEAM) {
         if (evalState & BIT_FLASH_TO_PASS) {
             if (effectState & BIT_GLOBAL_FLASH_TO_PASS) {
@@ -299,6 +300,15 @@ uint16_t LocalOutputController::calculateTargetPwm(const LocalOutputConfig& cfg,
             } else {
                 return 0;
             }
+        }
+    }
+
+    // DRL is active when no regular lights are on
+    if (triggerMask & BIT_DRL) {
+        if (evalState & (BIT_PARKING_LIGHT | BIT_LOW_BEAM | BIT_HIGH_BEAM)) {
+            return 0;
+        } else {
+            return cfg.param1;
         }
     }
 
@@ -404,6 +414,11 @@ uint16_t LocalOutputController::biXenonTargetPwm(int index, const LocalOutputCon
 
         }
     } else {
+        // Flash to Pass overrides both when active but only if low or high beam is on (makes no sense to trigger it if headlights are off)
+        if ((inputState & BIT_FLASH_TO_PASS) && (effectState & BIT_GLOBAL_FLASH_TO_PASS)) {
+            targetPwm = cfg.param2;
+        }
+        
         xenonCurrentPwmValues[index] = processFading(index, cfg, targetPwm);; // Maintain the target brightness after fade
     }
 

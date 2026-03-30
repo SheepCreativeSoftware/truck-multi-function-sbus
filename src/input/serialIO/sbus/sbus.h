@@ -17,7 +17,9 @@ class sbus : public SerialIO {
 private:
   sbus_channels_t _channelData;
   uint8_t _rxData[SBUS_MAX_PACKET_SIZE];
-  uint32_t _lastValidPacketTime;
+  const uint32_t SBUS_GAP_THRESHOLD = 2000; // 2ms in microseconds
+  uint32_t lastByteMicros = 0;
+  uint8_t bufferIdx = 0;
 
 public:
   /**

@@ -27,19 +27,35 @@ void sbus::begin() {
 
 void sbus::processIncoming() {
   while (_rxPort->available()) {
-    _rxData[SBUS_MAX_PACKET_SIZE - 1] = _rxPort->read();
-    if (_rxData[0] == HEADER_SBUS &&
-        _rxData[SBUS_MAX_PACKET_SIZE - 1] == FOOTER_SBUS) {
-      memcpy(&_channelData, _rxData, sizeof(_channelData));
-      _lastValidPacketTime = millis();
+    uint32_t now = micros();
+    uint8_t incomingByte = _rxPort->read();
+    
+    // If there was a gap, we MUST be at the start of a frame
+    if (now - lastByteMicros > SBUS_GAP_THRESHOLD) {
+      bufferIdx = 0; 
     }
-    leftShift(_rxData, sizeof(_rxData));
+    lastByteMicros = now;
 
-    _lastPacketTime = millis();
-    _connectionTimeout = false;
+    if (bufferIdx < 25) {
+      _rxData[bufferIdx++] = incomingByte;
+    }
+
+    if (bufferIdx == 25) {
+      if (_rxData[0] == HEADER_SBUS &&
+        _rxData[SBUS_MAX_PACKET_SIZE - 1] == FOOTER_SBUS) {
+
+        memcpy(&_channelData, _rxData, sizeof(_channelData));
+
+        _lastValidPacketTime = millis();
+        _connectionTimeout = false;
+      } else {
+        // Potential "False Sync" - discard and wait for next gap
+        bufferIdx = 0;
+      }
+    }
   }
 
-  if (millis() - _lastPacketTime > SBUS_TIMEOUT) {
+  if (millis() - _lastValidPacketTime > SBUS_TIMEOUT) {
     _connectionTimeout = true;
   }
 }

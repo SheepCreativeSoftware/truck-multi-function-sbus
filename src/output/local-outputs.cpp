@@ -116,7 +116,9 @@ void LocalOutputController::update(uint32_t inputState, uint32_t effectState, ui
             // 1. Brain: What is the base target brightness?
             uint16_t target = 0;
 
-            if (cfg.triggerMask == BIT_BI_XENON) {
+            // Ignore Starter for direct check
+            uint32_t triggerMask = cfg.triggerMask & ~BIT_STARTER_DIM; 
+            if (triggerMask == BIT_BI_XENON) {
                 target = biXenonTargetPwm(i, cfg, inputState, effectState);
             } else {
                 target = calculateTargetPwm(cfg, inputState, effectState, beacon1Pos, beacon2Pos);
@@ -132,7 +134,7 @@ void LocalOutputController::update(uint32_t inputState, uint32_t effectState, ui
             uint16_t actualValue = target;
             
             // 2. Muscle: Fade towards that target
-            if (cfg.triggerMask != BIT_BI_XENON) {
+            if (!(cfg.triggerMask & BIT_BI_XENON)) {
                 actualValue = processFading(i, cfg, target);
             }
 
@@ -418,7 +420,7 @@ uint16_t LocalOutputController::biXenonTargetPwm(int index, const LocalOutputCon
         if ((inputState & BIT_FLASH_TO_PASS) && (effectState & BIT_GLOBAL_FLASH_TO_PASS)) {
             targetPwm = cfg.param2;
         }
-        
+
         xenonCurrentPwmValues[index] = processFading(index, cfg, targetPwm);; // Maintain the target brightness after fade
     }
 

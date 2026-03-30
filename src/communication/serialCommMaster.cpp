@@ -36,7 +36,6 @@ void SerialCommMaster::begin(
 
 	_errorCount = 0;
 	_state = WAITING_FOR_TURNAROUND;
-	_frameDelay = 10;
 	_delayStart = 0;
 }
 
@@ -113,8 +112,6 @@ void SerialCommMaster::sendPacket(uint8_t bufferSize) {
 		(*_serialPort).write(_frame[i]);
 	}
 	(*_serialPort).flush();
-
-	delayMicroseconds(_frameDelay);
 
 	digitalWrite(_txEnablePin, LOW);
 

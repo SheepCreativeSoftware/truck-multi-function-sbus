@@ -58,7 +58,12 @@ void setup() {
 
   localOutputController.begin();
 
-  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 10, D2);
+  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 30, D2);
+
+  uint32_t initialProccessingTime = millis();
+  while (millis() - initialProccessingTime < 1000) {
+    sbusInput.update(false, globalServoState);
+  }
 }
 
 

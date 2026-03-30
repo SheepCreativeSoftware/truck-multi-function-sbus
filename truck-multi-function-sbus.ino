@@ -58,7 +58,7 @@ void setup() {
 
   localOutputController.begin();
 
-  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 30, D2);
+  serialCommMaster.begin(&Serial0, 19200, SERIAL_8N1, 1000, 10, D2);
 }
 
 
@@ -81,7 +81,7 @@ void loop() {
   uint8_t beacon1pos = globalEffects.getBeaconPosition(1);
   uint8_t beacon2pos = globalEffects.getBeaconPosition(2);
 
-  localOutputController.update(globalState, effectState, beacon1pos, beacon2pos, globalServoState);
-
   serialCommMaster.update(globalState, effectState, globalServoState);
+  
+  localOutputController.update(globalState, effectState, beacon1pos, beacon2pos, globalServoState);
 }

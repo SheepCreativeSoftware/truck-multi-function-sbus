@@ -1,8 +1,9 @@
 {
-    "board": "arduino:avr:micro",
+    "board": "arduino:esp32:nano_nora",
     "programmer": "arduino:avrispmkii",
     "port": "/dev/ttyACM0",
-    "sketch": "truckLightAndFunction.ino",
+    "sketch": "truck-multi-function-sbus.ino",
     "output": "./build",
-    "intelliSenseGen": "global"
+    "intelliSenseGen": "global",
+    "configuration": "PartitionScheme=default,PinNumbers=default,USBMode=default"
 }

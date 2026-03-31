@@ -30,6 +30,7 @@
 #include "starterBrightnessAdjustment.h"
 #include "debugging.h"					// Handles debbuging info
 #include "serialCommMaster.h"
+#include <SerialIO.h>
 
 struct MultiswitchChannel {
 	uint16_t channel[8];

@@ -30,6 +30,7 @@ void sbus::processIncoming() {
     uint32_t now = micros();
     uint8_t incomingByte = _rxPort->read();
     
+    // Preventing false sync by checking the start of a new frame after a gap in the data stream
     // If there was a gap, we MUST be at the start of a frame
     if (now - lastByteMicros > SBUS_GAP_THRESHOLD) {
       bufferIdx = 0; 

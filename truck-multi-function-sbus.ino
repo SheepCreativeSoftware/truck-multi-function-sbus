@@ -1,6 +1,6 @@
 /************************************ 
  * truck-multi-function-sbus v2.0.0
- * Date: 20.08.2025
+ * Date: 31.03.2026
  * <Truck Light and function module>
  * Copyright (C) 2020-2026 Marina Egner <hello@sheepcs.de>
  *
@@ -28,6 +28,7 @@
 #include "src/output/local-outputs.h"
 #include "src/config-interface/json-interface.h"
 #include "src/communication/serialCommMaster.h"
+#include "src/output/hardware-soft-pwm.h"
 
 // Initialize the parser using hardware Serial1, RX on pin 16, TX disabled (-1)
 SbusParser sbusInput(&Serial1, D3, -1, false);
@@ -55,6 +56,8 @@ void setup() {
   sbusInput.begin();
   ppmInput.begin();
   escInput.begin();
+
+  HardwareSoftPWM::begin();
 
   localOutputController.begin();
 

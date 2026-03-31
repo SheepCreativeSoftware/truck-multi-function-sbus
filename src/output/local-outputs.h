@@ -4,6 +4,7 @@
 #include "../config/main-config.h"
 #include "../config/light-mode.h"
 #include "../config/global-effects-config.h"
+#include "hardware-soft-pwm.h"
 
 #define MAX_LEDC_CHANNELS 8
 // ~244Hz
@@ -20,8 +21,6 @@ private:
     uint16_t currentPwmValues[NUM_LOCAL_OUTPUTS]; 
     uint32_t lastFadeMillis[NUM_LOCAL_OUTPUTS];
     uint8_t softwarePWMOutputs[NUM_LOCAL_OUTPUTS];
-    uint16_t lastPwmValues[NUM_LOCAL_OUTPUTS];
-    uint16_t mappedDuties[NUM_LOCAL_OUTPUTS];
 
     uint16_t xenonCurrentPwmValues[NUM_LOCAL_OUTPUTS]; 
     uint32_t xenonStartMillis[NUM_LOCAL_OUTPUTS];

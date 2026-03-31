@@ -5,6 +5,7 @@ LocalOutputController::LocalOutputController() {}
 void LocalOutputController::resetOutput(uint8_t pin, uint8_t channel) {
     ledPWM[channel].detachPin(pin);
     servos[channel].detach();
+    HardwareSoftPWM::reset();
 };
 
 bool LocalOutputController::isSoftwarePWMOutput(uint8_t pin) {
@@ -66,8 +67,6 @@ void LocalOutputController::begin() {
     for (int i = 0; i < NUM_LOCAL_OUTPUTS; i++) {
         LocalOutputConfig& cfg = activeMainConfig.localOutputs[i];
 
-        resetOutput(cfg.pin, i);
-
         switch (cfg.mode) {
             case OutputMode::NONE: 
                 pinMode(cfg.pin, INPUT);
@@ -79,8 +78,7 @@ void LocalOutputController::begin() {
 
             case OutputMode::PWM:
                 if(isSoftwarePWMOutput(cfg.pin)) {
-                    pinMode(cfg.pin, OUTPUT);
-                    digitalWrite(cfg.pin, LOW); // Safe default state
+                    HardwareSoftPWM::attach(cfg.pin);
                 } else {
                     // 12-bit gives us 4096 steps of brightness for ultra-smooth fading
                     // Core 2.x requires a channel (0-15). We use 'i' as the channel.
@@ -139,8 +137,9 @@ void LocalOutputController::update(uint32_t inputState, uint32_t effectState, ui
             }
 
             if(isSoftwarePWMOutput(cfg.pin)) {
-                updatePWMMapping(i, actualValue);
-                writeSoftwarePWMOutput(i, cfg.pin);
+                HardwareSoftPWM::update(cfg.pin, (uint8_t)map(actualValue, 0, 4095, 0, 100)); // Map 12-bit brightness to 0-100% duty cycle
+                // updatePWMMapping(i, actualValue);
+                // writeSoftwarePWMOutput(i, cfg.pin);
             } else {
                 writeHardwarePWMOutput(i, actualValue);
             }
@@ -475,19 +474,4 @@ uint16_t LocalOutputController::processFading(int index, const LocalOutputConfig
 
 void LocalOutputController::writeHardwarePWMOutput(uint8_t pinIndex, uint16_t targetPwm) {
     ledPWM[pinIndex].write(targetPwm);
-}
-
-void LocalOutputController::updatePWMMapping(uint8_t pinIndex, uint16_t targetPwm) {
-    if(lastPwmValues[pinIndex] != targetPwm) {
-        lastPwmValues[pinIndex] = targetPwm;
-        mappedDuties[pinIndex] = map(targetPwm, 0, 4095, 0, SOFTWARE_PWM_PERIODE);
-    }
-}
-
-void LocalOutputController::writeSoftwarePWMOutput(uint8_t pinIndex, uint8_t pin) {
-    if((micros() & SOFTWARE_PWM_MASK) < mappedDuties[pinIndex]) {
-        digitalWrite(pin, HIGH);
-    } else {
-        digitalWrite(pin, LOW);
-    }
 }

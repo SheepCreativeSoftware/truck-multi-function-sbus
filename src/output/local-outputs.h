@@ -36,8 +36,6 @@ private:
     // Helper: Moves the current value towards the target over time
     uint16_t processFading(int index, const LocalOutputConfig& cfg, uint16_t targetPwm);
     void writeHardwarePWMOutput(uint8_t pinIndex, uint16_t targetPwm);
-    void updatePWMMapping(uint8_t pinIndex, uint16_t targetPwm);
-    void writeSoftwarePWMOutput(uint8_t pinIndex, uint8_t pin);
 
 public:
     LocalOutputController();

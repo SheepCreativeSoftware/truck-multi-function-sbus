@@ -20,7 +20,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         activeMainConfig.failsafeMask = genConfig["fsMask"].as<uint32_t>() | activeMainConfig.failsafeMask;
         activeMainConfig.failsafeTimeoutMs = genConfig["fsTimeout"].as<uint16_t>() | activeMainConfig.failsafeTimeoutMs;
         activeMainConfig.ppmMode = static_cast<PpmInputMode>(genConfig["ppmMode"].as<uint8_t>() | static_cast<uint8_t>(activeMainConfig.ppmMode));
-        Serial.println("Main config updated!");
+        Serial.println("{ \"status\": \"Main config updated\" }");
     }
 
     // --- 1. OUTPUTS ---
@@ -39,7 +39,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
             }
             index++;
         }
-        Serial.println("Outputs updated!");
+        Serial.println("{ \"status\": \"Outputs updated\" }");
         outputController.begin(); // Re-init hardware pins
     }
 
@@ -59,7 +59,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
                 activeMainConfig.sbusInputs[channel].targetServoIndex = inConfig["srv"].as<InputServoMapping>();
             }
         }
-        Serial.println("SBUS Inputs updated!");
+        Serial.println("{ \"status\": \"SBUS Inputs updated\" }");
     }
 
     // --- 2.1. PPM INPUTS ---
@@ -78,7 +78,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
                 activeMainConfig.ppmInputs[channel].targetServoIndex = inConfig["srv"].as<InputServoMapping>();
             }
         }
-        Serial.println("PPM Inputs updated!");
+        Serial.println("{ \"status\": \"PPM Inputs updated\" }");
     }
 
     // --- 3. GLOBAL EFFECTS ---
@@ -101,7 +101,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         activeEffectsConfig.xenonFadeDuration = effConfig["xenFade"] | activeEffectsConfig.xenonFadeDuration;
         activeEffectsConfig.xenonLowBeamStartPwm = effConfig["xenLowPwm"] | activeEffectsConfig.xenonLowBeamStartPwm;
         
-        Serial.println("Effects updated!");
+        Serial.println("{ \"status\": \"effects updated\" }");
     }
 
     // Optional: Trigger a save to NVS here if configChanged is true
@@ -109,7 +109,7 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         JsonString save = doc["save"];
         if(save == "true") {
             memoryManager.saveConfig();
-            Serial.println("Config Saved!");
+            Serial.println("{ \"status\": \"config saved\" }");
         }
     }
 
@@ -117,7 +117,11 @@ void JsonInterface::update(LocalOutputController& outputController, MemoryManage
         JsonString factory = doc["factory"];
         if(factory == "true") {
             memoryManager.factoryReset();
-            Serial.println("Factory Reset!");
+            Serial.println("{ \"status\": \"factory reset\" }");
         }
+    }
+
+    if (doc["status"].is<JsonString>()) {
+        Serial.println("{ \"status\": \"ok\", \"version\": \"2.0.0\", \"model\": \"MainESP32\" }");
     }
 }

@@ -2,8 +2,8 @@
 	"version": 4,
 	"configurations": [
 		{
-			"name": "Arduino",
-			"compilerPath": "/home/magraina/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
+			"name": "Arduino Nano ESP32",
+			"compilerPath": "/home/magraina/.arduino15/packages/esp32/tools/s3-gcc/2021r2-p5/bin/xtensa-esp32s3-elf-g++",
 			"compilerArgs": [
 				"-w",
 				"-std=gnu++11",
@@ -17,29 +17,27 @@
 			"intelliSenseMode": "gcc-x64",
 			"includePath": [
 				"${workspaceFolder}/**",
-				"/home/magraina/.arduino15/packages/arduino/hardware/avr/1.8.7/cores/arduino",
-				"/home/magraina/.arduino15/packages/arduino/hardware/avr/1.8.7/variants/micro",
-				// ESP32 Paths
+				// 1. Core & Variant (Basis Arduino ESP32)
 				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/cores/esp32",
 				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/variants/arduino_nano_nora",
+
+				// 2. Die magische sdkconfig.h für das Nano ESP32 Board
+				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/tools/sdk/esp32s3/qio_opi/include",
+
+				// 3. ESP-IDF Framework Includes (Hier liegt die hal.h und alle esp_... Dateien)
+				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/tools/sdk/esp32s3/include/**",
+
+				// 4. Eigene & System-Bibliotheken (ESP32Servo, ArduinoJson, Preferences etc.)
 				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/libraries/**",
-				"/home/magraina/Arduino/libraries/**",
-				"/home/magraina/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include",
-				"/home/magraina/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include-fixed",
-				"/home/magraina/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/avr/include",
-				"/home/magraina/.arduino15/packages/esp32/tools/**",
-				"/home/magraina/.arduino15/packages/arduino/tools/**"
+				"/home/magraina/Arduino/libraries/**"
 			],
 			"forcedInclude": [
-				"/home/magraina/.arduino15/packages/arduino/hardware/avr/1.8.7/cores/arduino/Arduino.h",
-				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/cores/esp32/Arduino.h",
-				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/cores/esp32/HardwareSerial.h"
+				"/home/magraina/.arduino15/packages/arduino/hardware/esp32/2.0.18-arduino.5/cores/esp32/Arduino.h"
 			],
 			"cStandard": "c11",
 			"cppStandard": "c++11",
 			"defines": [
 				"IRAM_ATTR=",
-				"digitalPinToGPIONumber(p)",
 				"ESP32",
 				"ARDUINO=10819",
 				"ARDUINO_NANO_ESP32",
@@ -47,7 +45,6 @@
 				"ARDUINO_USB_MODE=1",
 				"ARDUINO_USB_CDC_ON_BOOT=1",
 				"USBCON",
-				"attachInterruptArg(p,f,a,m)=",
 				"F_CPU=240000000L"
 			]
 		}
